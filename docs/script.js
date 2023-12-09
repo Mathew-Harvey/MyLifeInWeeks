@@ -1,23 +1,12 @@
-document.getElementById('generate-chart').addEventListener('click', function() {
-    const age = parseFloat(document.getElementById('user-age').value); // Allow for partial years
-    const totalWeeksLived = Math.floor(age * 52); // Convert age to total weeks lived
-    const chartContainer = document.getElementById('chart-container');
-    chartContainer.innerHTML = ''; // Clear the chart before generating new boxes
-    createWeekBoxes(chartContainer, totalWeeksLived, 90); // Assume a 90-year lifespan
-});
-
 function createWeekBoxes(container, totalWeeksLived, totalYears) {
     const chartContainer = document.getElementById('chart-container');
     const labelsContainer = document.getElementById('decade-labels-container');
-    chartContainer.innerHTML = ''; // Clear the chart
-    labelsContainer.innerHTML = ''; // Clear the labels
+    chartContainer.innerHTML = ''; 
+    labelsContainer.innerHTML = ''; 
     const weeksPerYear = 52;
-    const weeksPerMonth = 4.34812; // Average weeks per month (52 weeks / 12 months)
+    const weeksPerMonth = 4.34812; 
     let weeksCounter = 0;
-
-    // Generate the full chart with decades, years, and weeks
     for (let year = 0; year < totalYears; year++) {
-        // Add decade label at the start of each decade
         if (year % 10 === 0) {
             const decadeLabel = document.createElement('div');
             const decadeWrapper = document.createElement('div');
@@ -27,50 +16,37 @@ function createWeekBoxes(container, totalWeeksLived, totalYears) {
             decadeWrapper.appendChild(decadeLabel);
             container.appendChild(decadeWrapper);
         }
-
         const yearContainer = document.createElement('div');
         yearContainer.classList.add('year-container');
         yearContainer.dataset.year = year;
-
-        // Generate months for the year
-        
         for (let month = 0; month < 13; month++) {
             const monthContainer = document.createElement('div');
             monthContainer.classList.add('month-container');
             monthContainer.dataset.month = month + 1;
-            
-            // Generate weeks for the month
-            let weekCountForMonth = month === 13 ? weeksPerYear - weeksCounter : Math.floor(weeksPerMonth); // Adjust for last month
+            let weekCountForMonth = month === 13 ? weeksPerYear - weeksCounter : Math.floor(weeksPerMonth); 
             for (let week = 0; week <weekCountForMonth; week++) {
                 if (weeksCounter >= weeksPerYear * (year + 1)) {
-                    // If the weeks exceed the year, break the loop
                     break;
                 }
                 const weekBox = document.createElement('div');
                 weekBox.classList.add('week-box');
-                weekBox.classList.add(weeksCounter < totalWeeksLived ? 'lived' : 'unlived'); // Apply the lived or unlived class based on the weeksCounter
+                weekBox.classList.add(weeksCounter < totalWeeksLived ? 'lived' : 'unlived'); 
                 monthContainer.appendChild(weekBox);
-                weeksCounter++; // Increment weeks counter
+                weeksCounter++; 
             }
-            
             if (weeksCounter >= weeksPerYear * (year + 1)) {
-                // If we've added all weeks for the year, don't add any more months
                 break;
             }
-
             yearContainer.appendChild(monthContainer);
         }
-
         container.appendChild(yearContainer);
     }
 }
 
-// Initial chart generation (optional)
 document.addEventListener('DOMContentLoaded', function() {
-    createWeekBoxes(document.getElementById('chart-container'), 0, 90); // Start with no weeks lived
+    createWeekBoxes(document.getElementById('chart-container'), 0, 90); 
 });
-
-    // Function to show tooltip
+    
     function showTooltip(event) {
         const tooltip = document.createElement('div');
         tooltip.classList.add('tooltip');
@@ -80,8 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tooltip.style.top = `${event.pageY + 10}px`;
         document.body.appendChild(tooltip);
     }
-
-    // Function to hide tooltip
+    
     function hideTooltip(event) {
         document.querySelectorAll('.tooltip').forEach(tooltip => {
             tooltip.remove();
@@ -89,48 +64,65 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function createWeekLabels(container) {
-        container.innerHTML = ''; // Clear any existing labels
+        container.innerHTML = ''; 
         const weeksInYear = 52;
-        
-        // Create the 'WEEKS' label
         const weeksLabel = document.createElement('div');
         weeksLabel.textContent = '';
         weeksLabel.style.textAlign = 'left';
-        weeksLabel.style.marginRight = '10px'; // Adjust as needed
-        weeksLabel.style.fontSize = '12px'; // Adjust as needed
+        weeksLabel.style.marginRight = '10px'; 
+        weeksLabel.style.fontSize = '12px'; 
         container.appendChild(weeksLabel);
-    
-        // Create the individual week number labels
         for (let i = 1; i <= weeksInYear; i++) {
             const label = document.createElement('div');
             label.classList.add('week-label');
-            label.textContent = i % 4 === 0 ? i : ''; // Adjust as per your label frequency requirement
+            label.textContent = i % 4 === 0 ? i : ''; 
             container.appendChild(label);
         }
     }
     
-    // Call createWeekLabels on DOMContentLoaded
     document.addEventListener('DOMContentLoaded', function() {
         const weekLabelsContainer = document.getElementById('week-labels-container');
         createWeekLabels(weekLabelsContainer);
-    
-        // Also generate the week boxes as before
-        createWeekBoxes(document.getElementById('chart-container'), 0, 90); // Start with no weeks lived
+        createWeekBoxes(document.getElementById('chart-container'), 0, 90); 
     });
 
     function createYearLabels(container) {
-        container.innerHTML = ''; // Clear any existing labels
-        
-        for (let i = 0; i < 19; i++) { // Assuming a 90-year lifespan with labels every 5 years
+        container.innerHTML = ''; 
+        for (let i = 0; i < 19; i++) { 
             const label = document.createElement('div');
             label.classList.add('year-label');
-            label.textContent = i * 5; // Multiplying by 5 gives us the five-year intervals
+            label.textContent = i * 5; 
             container.appendChild(label);
         }
     }
-    
  
     document.addEventListener('DOMContentLoaded', function() {
         const yearsLabelsContainer = document.getElementById('years-labels-container');
         createYearLabels(yearsLabelsContainer);
+    });
+
+    function calculateAge() {
+        var birthdate = document.getElementById('birthdate').value;
+        if (birthdate) {
+            var today = new Date();
+            var birthDate = new Date(birthdate);
+            var age = today.getFullYear() - birthDate.getFullYear();
+            var m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            var daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+            var ageDecimal = age + (m + (today.getDate() - birthDate.getDate()) / daysInMonth) / 12;
+            ageDecimal = Math.round(ageDecimal * 100) / 100;
+            const totalWeeksLived = Math.floor(ageDecimal * 52);
+            const chartContainer = document.getElementById('chart-container');
+            chartContainer.innerHTML = '';
+            createWeekBoxes(chartContainer, totalWeeksLived, 90);
+        } else {
+            
+            console.log('Please enter your birthdate.');
+        }
+    }
+    $(function() {
+        $("#floating-div").draggable().resizable();
     });
