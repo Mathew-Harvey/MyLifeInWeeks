@@ -117,7 +117,7 @@ body, html {
 }
 
 .week-box.lived {
-    background-color: red;
+    background-color: #808080;
 }
 
 .week-box.unlived {
@@ -156,4 +156,29 @@ body, html {
     top: 50px;
     left: 50px;
     z-index: 2;
+}
+#add-event-btn {
+    cursor: pointer;
+    background-color: #f9f9f9;
+    padding: 5px;
+    border-radius: 50%;
+    text-align: center;
+    width: 30px;
+    height: 30px;
+    line-height: 20px;
+    border: 1px solid #ccc;
+}
+#add-event-btn:hover {
+    background-color: #e0e0e0;
+}
+.tooltip {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    line-height: 14px;
+    z-index: 1000;
 }
