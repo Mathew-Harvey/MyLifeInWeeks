@@ -1,0 +1,194 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
+    align-items: center; /* Center children horizontally */
+    justify-content: center; /* Center children vertically */
+    width: 100%;
+}
+
+#user-input {
+    text-align: center;
+    display: flex; /* Use flex to center its children horizontally */
+    flex-direction: column; /* Stack children vertically within #user-input */
+    align-items: center; /* Center children horizontally within #user-input */
+    margin-bottom: 20px; /* Add some space between input and chart */
+}
+
+#chart-wrapper {
+    width: 100%; /* Set to the width you prefer or keep it 100% */
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+#chart-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align items to the start */
+}
+
+.year-container {
+    display: flex;
+    justify-content: center; /* Center year containers horizontally */
+    width: auto; /* Allow the container to adjust its width based on content */
+}
+
+/* Additional CSS for the decade wrapper if necessary */
+.decade-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Align items to the left */
+    width: 100%;
+}
+
+#decade-labels-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.decade-label {
+    font-weight: bold;
+    margin-top: 10px; /* Adjust margin-top as needed */
+    text-align: left;
+    /* Ensure there is no width limitation so it doesn't affect the alignment */
+}
+.decade-spacer {
+    height: 20px; /* Height of the spacer, adjust as needed */
+    width: 100%;
+}
+
+
+.month-container {
+    display: flex; /* Align weeks horizontally within each month */
+    padding-right: 4px; /* Space between months */
+}
+
+
+.week-box.lived {
+    background-color: red; /* Color the lived weeks red */
+}
+
+.week-box.unlived {
+    background-color: #eee; /* Keep the unlived weeks grey */
+}
+
+/* Ensure that both lived and unlived weeks have the same size and margins */
+.week-box {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 0; /* Remove margins to align with the grid */
+    /* Other styles remain unchanged */
+}
+
+#label-chart-wrapper {
+    display: flex;
+    flex-direction: column; /* Stack label and chart vertically */
+    align-items: center; /* Center children horizontally */
+    width: 100%;
+}
+
+#week-labels-container {
+    display: flex;
+    justify-content: center; /* Center labels horizontally */
+    width: 100%; /* Take full width to match chart container */
+    box-sizing: border-box;
+    padding: 0; /* Reset any padding */
+    margin-bottom: 25px; /* Space between labels and chart */
+    position: relative; 
+    margin-left: -25px;
+}
+
+
+#chart-wrapper {
+    width: 100%; /* Match the width of the label-chart-wrapper */
+    display: flex;
+    flex-direction: column; /* Stack chart contents vertically */
+    align-items: center; /* Center chart contents horizontally */
+}
+
+#chart-container {
+    flex-grow: 1; /* Allows the chart to fill the remaining space */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the chart horizontally */
+}
+
+.year-container {
+    display: flex;
+    justify-content: flex-start; /* Align weeks to the start */
+    flex-wrap: wrap; /* Allow wrapping of weeks */
+    width: 100%; /* Full width to align with labels */
+    box-sizing: border-box;
+}
+
+/* Align week boxes within the year container */
+.week-box {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 1px; /* Space between circles */
+}
+
+/* Ensure week labels match the week box alignment and spacing */
+.week-label {
+    display: flex;
+    justify-content: flex-start; /* Align weeks to the start */
+    flex-wrap: wrap; /* Allow wrapping of weeks */
+    width: 8px; 
+    text-align: center;
+    font-size: 10px;
+    justify-content: center;
+    align-items: center;
+    margin: 0 2px;
+}
+
+#week-text-label {
+    margin-left: -600px;
+    margin-bottom: 10px;
+    
+}
+
+
+#label-chart-wrapper {
+    display: flex;
+    flex-direction: row; /* This will align the year labels and chart horizontally */
+    align-items: flex-start; /* Align the top edges of the children */
+    width: 100%; /* Full width to contain both labels and chart */
+    margin-top: -20px; /* Move the chart closer to the week's scale */
+}
+
+#years-labels-container {
+    margin-right: 10px; /* Spacing between the years labels and the chart */
+    order: -1; /* This will ensure that the years labels come before the chart */
+    
+}
+
+.year-label {
+    /* Adjust this to match the height of each row in your grid */
+    height: 94px; /* Or whatever height matches your grid rows */
+    margin-top: -31px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Right-align the text */
+    font-size: 10px; /* Adjust font size as needed */
+
+}
+
+
+#masterWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align the top edges of the children */
+    width: 100%;
+}
+.week-box, .week-label {
+    /* If the boxes are not aligning properly, you may need to adjust their width, height, or margin */
+    width: 10px;
+    height: 10px;
+    margin: 1px;
+}
