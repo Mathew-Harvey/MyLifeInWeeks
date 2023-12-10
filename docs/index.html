@@ -14,13 +14,20 @@
     <div id="floating-div">Life Events
         <div id="add-event-btn" title="Add life event">+</div>
     </div>
+    </div>
     <div class="tooltip">Add life event</div>
     <header>
         <h1>MY LIFE IN WEEKS</h1>
     </header>
     <div id="decade-labels-container"></div>
-    <label for="birthdate">Enter your birthdate:</label>
-    <input type="date" id="birthdate" onchange="calculateAge()">
+    <div class="birthdate-section">
+        <p>Enter your birthday and add life events</p>
+        <input type="date" id="birthdate" onchange="calculateAge()">
+
+        <button id="toggle-life-events">Life Events</button>
+    </div>
+
+
     <div id="week-text-label">Weeks</div>
     <div id="year-text-label">Years</div>
     <div id="week-labels-container"></div>

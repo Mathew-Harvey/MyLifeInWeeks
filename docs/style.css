@@ -26,13 +26,15 @@ body, html {
 }
 
 #years-labels-container {
+    margin-top: -45px;
     margin-right: 10px;
     order: -1;
+    width: 200px;
 }
 
 .year-label {
-    height: 94px;
-    margin-top: -31px;
+    height: 155px;
+    margin-top: -20px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -47,7 +49,7 @@ body, html {
     padding: 0;
     margin-bottom: 25px;
     position: relative; 
-    margin-left: -25px;
+    margin-left: 110px;
 }
 
 #week-text-label {
@@ -81,6 +83,11 @@ body, html {
     display: flex;
     padding-right: 4px;
 }
+.month-spacer {
+    width: 5px; /* or whatever width you desire for the visual gap */
+    height: 10px; /* same height as week-boxes to align them properly */
+    flex-shrink: 0; /* prevent the spacer from shrinking */
+}
 
 .decade-wrapper {
     display: flex;
@@ -96,15 +103,17 @@ body, html {
 }
 
 .decade-label {
-    font-weight: bold;
-    margin-top: 10px;
-    text-align: left;
+    writing-mode: vertical-rl; /* Rotate the labels */
+    transform: rotate(180deg); /* Flip the text to the correct direction */
+    align-self: flex-start; /* Align to the top of the container */
 }
 
 .decade-spacer {
-    height: 20px;
-    width: 100%;
+   flex-basis: 100%;
+    height: 20px; 
 }
+
+
 
 .week-box {
     width: 10px;
@@ -125,7 +134,7 @@ body, html {
 }
 
 .week-label {
-    width: 8px;
+    width: 9.5px;
     text-align: center;
     font-size: 10px;
     justify-content: center;
@@ -146,28 +155,8 @@ body, html {
     margin-top: -324px;
 }
 
-#floating-div {
-    width: 150px;
-    height: 150px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    background-color: #ffffff;
-    position: absolute;
-    top: 50px;
-    left: 50px;
-    z-index: 2;
-}
-#add-event-btn {
-    cursor: pointer;
-    background-color: #f9f9f9;
-    padding: 5px;
-    border-radius: 50%;
-    text-align: center;
-    width: 30px;
-    height: 30px;
-    line-height: 20px;
-    border: 1px solid #ccc;
-}
+
+
 #add-event-btn:hover {
     background-color: #e0e0e0;
 }
@@ -181,4 +170,255 @@ body, html {
     font-size: 12px;
     line-height: 14px;
     z-index: 1000;
+}
+#floating-div {
+    background-color: #ffffff;
+    border: 1px solid #eaeaea;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    border-radius: 8px;
+    position: fixed;
+    top: 10vh;
+    right: 5vw;
+    width: 300px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+
+
+
+.event-group input[type="text"],
+.event-group input[type="date"] {
+    border: none;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 15px;
+    padding: 8px 0;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.event-group input[type="text"]:focus,
+.event-group input[type="date"]:focus {
+    outline: none;
+    border-bottom-color: #5cb85c;
+}
+
+.event-group input[type="color"] {
+    border: none;
+    margin-bottom: 15px;
+    height: 35px;
+    cursor: pointer;
+}
+
+.submit-event {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submit-event:hover {
+    background-color: #0069d9;
+}
+
+.event-key {
+    background-color: #e9ecef;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.event-key:hover {
+    background-color: #dee2e6;
+}
+.remove-event {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    margin-left: auto; /* Aligns the button to the right */
+    font-size: 14px;
+    color: #fff;
+    background-color: #dc3545; /* Bootstrap's btn-danger color */
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.remove-event:hover {
+    background-color: #c82333; /* Darken color on hover */
+}
+
+.compact-event {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    position: relative;
+}
+
+.compact-event .event-dates {
+    margin-left: 5px;
+    font-size: 0.8em;
+    color: #666;
+}
+
+.compact-event .color-indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 5px;
+    border: 1px solid #ddd;
+}
+
+
+.compact-event.highlight {
+    background-color: #e8e8e8;
+}
+
+.hidden {
+    display: none;
+}
+/* Style for the 'Add Life Event' button */
+.add-event-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    background-color: #f8f8f8;
+    cursor: pointer;
+    font-size: 24px;
+    color: #888;
+  }
+  
+  /* Style for the date picker container */
+  .date-picker-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  
+  /* Style for the date picker inputs */
+  .date-picker {
+    width: calc(50% - 5px);
+  }
+  
+  /* Style for the color picker and submit button container */
+  .color-submit-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  /* Style for the color picker preview */
+  .color-picker-preview {
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    cursor: pointer;
+  }
+  
+  /* Style for the submit button */
+  .submit-event {
+    padding: 5px 10px;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    border: grey;
+    border-radius: 4px;
+    cursor: pointer;
+    
+  }
+  
+  /* Style for the remove button */
+  .remove-event {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 2px 5px;
+  }
+  
+  /* General styling for event group */
+  .event-group {
+    position: relative;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Adjust the space between items */
+  }
+  
+.event-name-and-color {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Adjust the space between items */
+}
+
+.event-name-and-color input[type="text"] {
+    flex-grow: 1; /* Allows the text input to fill the space */
+}
+
+.event-name-and-color input[type="color"] {
+    /* Optional styles for the color picker */
+    width: 30px; /* Adjust as needed */
+    height: 30px; /* Adjust as needed */
+    border: none;
+    cursor: pointer;
+}
+.birthdate-section {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between elements */
+  }
+  
+  #toggle-life-events {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  #toggle-life-events:hover {
+    background-color: #0056b3;
+  }
+
+  .event-label-container {
+    /* Styles to visually format the label container */
+    background: #FFF; /* Background color */
+    border: 1px solid #000; /* Border */
+    padding: 2px 5px; /* Padding */
+    border-radius: 4px; /* Rounded corners */
+    white-space: nowrap; /* Ensure the label text does not wrap */
+    /* ... additional styles ... */
 }
