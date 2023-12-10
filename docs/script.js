@@ -51,12 +51,17 @@ function createWeekBoxes(container, totalWeeksLived, totalYears) {
                         const weekDate = new Date(birthDate.getTime() + weeksCounter * 7 * 24 * 60 * 60 * 1000);
 
                         lifeEvents.forEach(event => {
-                            if (event.start && event.end) {
-                                if (weekDate >= event.start && weekDate <= event.end) {
-                                    weekBox.style.backgroundColor = event.color;
-                                    weekBox.title = event.name;
-                                }
+                            // Convert event start and end to the corresponding week number since birth.
+                            const eventStartWeek = Math.floor((event.start - birthDate) / (7 * 24 * 60 * 60 * 1000));
+                            const eventEndWeek = Math.floor((event.end - birthDate) / (7 * 24 * 60 * 60 * 1000));
+
+                            // Check if the current week box is within the event start and end week.
+                            if (weeksCounter >= eventStartWeek && weeksCounter <= eventEndWeek) {
+                                weekBox.style.backgroundColor = event.color;
+                                weekBox.title = event.name;
                             }
+                            console.log(`Event: ${event.name}, Start Week: ${eventStartWeek}, End Week: ${eventEndWeek}`); // Log event weeks
+                            console.log(`Current Week Counter: ${weeksCounter}`); // Log the current week counter
                         });
                     }
                 }
@@ -132,9 +137,9 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function calculateAge() {
-    var birthDate = document.getElementById('birthdate').value;
-    if (birthDate) {
-        birthDate = new Date(birthDate)
+    var inputBirthDate = document.getElementById('birthdate').value;
+    if (inputBirthDate) {
+        birthDate = new Date(inputBirthDate); // Set the global birthDate
         var today = new Date();
         var age = today.getFullYear() - birthDate.getFullYear();
         var m = today.getMonth() - birthDate.getMonth();
@@ -146,117 +151,91 @@ function calculateAge() {
         var daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
         var ageDecimal = age + (m + (today.getDate() - birthDate.getDate()) / daysInMonth) / 12;
         ageDecimal = Math.round(ageDecimal * 100) / 100;
-        const totalWeeksLived = Math.floor(ageDecimal * 52);
-        const chartContainer = document.getElementById('chart-container');
-        chartContainer.innerHTML = '';
+        totalWeeksLived = Math.floor(ageDecimal * 52);
         createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
     } else {
-
         console.log('Please enter your birthdate.');
     }
 }
 
 
 
-$(function () {
-    $("#floating-div").draggable().resizable();
 
-    $("#add-event-btn").click(function () {
-        eventCounter++;
-        const eventGroup = $('<div/>', { class: 'event-group' });
-        eventGroup.append($('<input/>', {
-            type: 'text',
-            id: 'event-name-' + eventCounter,
-            placeholder: 'Event Name'
-        }));
-        eventGroup.append($('<input/>', {
-            type: 'text',
-            class: 'date-picker',
-            id: 'event-start-' + eventCounter,
-            placeholder: 'From'
-        }));
-        eventGroup.append($('<input/>', {
-            type: 'text',
-            class: 'date-picker',
-            id: 'event-end-' + eventCounter,
-            placeholder: 'To'
-        }));
-        eventGroup.append($('<input/>', {
-            type: 'color',
-            id: 'event-color-' + eventCounter,
-            title: 'Choose event color'
-        }));
-
-        $("#floating-div").append(eventGroup);
-
-        $('.date-picker').datepicker({ dateFormat: 'yy-mm-dd' });
-        $('.color-picker').spectrum({
-            // Spectrum initialization options
+    $(function () {
+        $("#floating-div").draggable().resizable();
+    
+        $("#add-event-btn").click(function () {
+            eventCounter++;
+            const eventGroup = $('<div/>', { class: 'event-group' });
+            eventGroup.append($('<input/>', {
+                type: 'text',
+                id: 'event-name-' + eventCounter,
+                placeholder: 'Event Name'
+            }));
+            eventGroup.append($('<input/>', {
+                type: 'text',
+                class: 'date-picker',
+                id: 'event-start-' + eventCounter,
+                placeholder: 'From'
+            }));
+            eventGroup.append($('<input/>', {
+                type: 'text',
+                class: 'date-picker',
+                id: 'event-end-' + eventCounter,
+                placeholder: 'To'
+            }));
+            const colorInput = $('<input/>', {
+                type: 'color',
+                id: 'event-color-' + eventCounter,
+                title: 'Choose event color'
+            });
+            eventGroup.append(colorInput);
+    
+            $("#floating-div").append(eventGroup);
+    
+            // Initialize the datepickers
+            $('.date-picker').datepicker({ dateFormat: 'yy-mm-dd' });
+    
+            // Attach the Spectrum color picker to the color input
+            colorInput.spectrum({
+                color: "#f00", // Example starting color, red
+                showInput: true,
+                showInitial: true,
+                preferredFormat: "hex",
+                showPalette: true,
+                palette: [
+                    ["#000", "#444", "#666", "#999", "#ccc", "#eee", "#f3f3f3", "#fff"],
+                    ["#f00", "#f90", "#ff0", "#0f0", "#0ff", "#00f", "#90f", "#f0f"],
+                ],
+                change: function (color) {
+                    // When a color is chosen, update the event color
+                    const colorHex = color.toHexString();
+                    $('#event-color-' + eventCounter).val(colorHex);
+    
+                    // Find the event in the lifeEvents array and update its color
+                    const index = lifeEvents.findIndex(event => event.id === 'event-' + eventCounter);
+                    if (index !== -1) {
+                        lifeEvents[index].color = colorHex;
+                    } else {
+                        // If the event isn't in the array, push it with the selected color
+                        lifeEvents.push({
+                            id: 'event-' + eventCounter,
+                            name: $('#event-name-' + eventCounter).val(),
+                            start: new Date($('#event-start-' + eventCounter).val()),
+                            end: new Date($('#event-end-' + eventCounter).val()),
+                            color: colorHex
+                        });
+                    }
+    
+                    // Recreate the week boxes with the updated colors
+                    createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
+                }
+            });
         });
-    });
-
-
-
-
-    $("#add-event-btn").hover(function () {
-        eventCounter++;
-        const eventGroup = $('<div/>', { class: 'event-group' });
-        $(".tooltip").show().css({
-            top: $(this).offset().top - $(this).outerHeight(),
-            left: $(this).offset().left + $(this).outerWidth() / 2 - $(".tooltip").outerWidth() / 2
-        });
-        const colorInput = $('<input/>', {
-            id: 'event-color-' + eventCounter,
-        });
-        eventGroup.append(colorInput);
-        colorInput.spectrum({
-            color: "#f00", // Example starting color, red
-            showInput: true,
-            showInitial: true,
-            preferredFormat: "hex",
-            showPalette: true,
-            palette: [ // Example color palette
-                ["#000", "#444", "#666", "#999", "#ccc", "#eee", "#f3f3f3", "#fff"],
-                ["#f00", "#f90", "#ff0", "#0f0", "#0ff", "#00f", "#90f", "#f0f"],
-            ],
-            change: function (color) {
-                // Logic to handle color change events
-                // You could update the event's display or store the selected color value
-            }
-        });
-        eventGroup.append($('<input/>', {
-            type: 'color',
-            id: 'event-color-' + eventCounter,
-            title: 'Choose event color'
-        }));
-    }, function () {
-        $(".tooltip").hide();
-    });
-});
-
-$("#add-event-btn").click(function () {
-    eventCounter++;
-    const eventName = $('#event-name-' + eventCounter).val();
-    const eventStartStr = $('#event-start-' + eventCounter).val();
-    const eventEndStr = $('#event-end-' + eventCounter).val();
-    const eventColor = $('#event-color-' + eventCounter).val();
-
-    const eventStart = eventStartStr ? new Date(eventStartStr) : null;
-    const eventEnd = eventEndStr ? new Date(eventEndStr) : null;
-
-    if (eventStart && eventEnd) { // Check if both dates are valid
-        const event = {
-            id: 'event-' + eventCounter,
-            name: eventName,
-            start: eventStart,
-            end: eventEnd,
-            color: eventColor
-        };
-
-        if (event.start && event.end) {
-            lifeEvents.push(event);
+        // ... [rest of the code]
+    
+        function updateGrid() {
+            calculateAge(); // Make sure this function sets the birthDate global variable
+            createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
         }
-    }
-
-    createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
-});
+    });
