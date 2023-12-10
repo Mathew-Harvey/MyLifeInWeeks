@@ -9,6 +9,10 @@ body, html {
     width: 100%;
 }
 
+header{
+    margin-left: 175px;
+}
+
 #masterWrapper {
     position: relative;
     display: flex;
@@ -395,6 +399,7 @@ body, html {
     cursor: pointer;
 }
 .birthdate-section {
+    margin-left: 175px;
     display: flex;
     align-items: center;
     gap: 10px; /* Space between elements */

@@ -14,11 +14,10 @@ function createWeekLabels() {
     }
 }
 
-
 function createYearLabels(totalYears) {
     const yearsLabelsContainer = document.getElementById('years-labels-container');
     yearsLabelsContainer.innerHTML = '';
-    for (let i = 0; i < totalYears; i += 10) { 
+    for (let i = 0; i < totalYears; i += 10) {
         const yearLabel = document.createElement('div');
         yearLabel.classList.add('year-label');
         yearLabel.textContent = i;
@@ -36,12 +35,10 @@ function createWeekBoxes(container, totalWeeksLived, totalYears) {
     const weeksPerYear = 52;
     let weeksCounter = 0;
 
-    // Change: Adjusting loop to include month groupings
     for (let year = 0; year < totalYears; year++) {
         const yearContainer = document.createElement('div');
         yearContainer.classList.add('year-container');
 
-        // Change: Adding a spacer at the start of each decade
         if (year % 10 === 0) {
             const decadeSpacer = document.createElement('div');
             decadeSpacer.classList.add('decade-spacer');
@@ -49,7 +46,6 @@ function createWeekBoxes(container, totalWeeksLived, totalYears) {
         }
 
         for (let week = 0; week < weeksPerYear; week++) {
-            // Change: Adding a spacer at the start of each month
             if (week % 4 === 0) {
                 const monthSpacer = document.createElement('div');
                 monthSpacer.classList.add('month-spacer');
@@ -189,13 +185,6 @@ function addOrUpdateEvent(counter) {
     createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
 }
 
-
-    createWeekLabels();
-    createYearLabels(100);
-    createDecadeLabels(100);
-    createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
-
-// Function to create a compact key view of an event
 function createCompactEventView(event, counter) {
     const compactView = $('<div/>', {
         class: 'compact-event',
@@ -204,23 +193,19 @@ function createCompactEventView(event, counter) {
         mouseleave: function () { $(this).removeClass('highlight'); }
     });
 
-    // Add the event name and dates to the compact view
     compactView.append($('<span/>', { text: event.name + ': ' }));
     compactView.append($('<span/>', { text: formatDate(event.start) + ' - ' + formatDate(event.end), class: 'event-dates' }));
 
-    // Add a colored indicator
     compactView.append($('<span/>', {
         class: 'color-indicator',
         css: { 'background-color': event.color }
     }));
 
-    // Add a remove button
     compactView.append($('<button/>', {
         text: 'x',
         class: 'remove-event',
         click: function (e) {
-            e.stopPropagation(); // Prevent the compact event from expanding
-            // Removal logic here
+            e.stopPropagation();
             removeEvent(counter);
         }
     }));
@@ -228,31 +213,25 @@ function createCompactEventView(event, counter) {
     return compactView;
 }
 
-// Toggle event view function
 function toggleEventView(counter) {
     const detailView = $('#event-details-' + counter);
     const compactView = $('#compact-event-' + counter);
 
-    // Check if we're expanding or collapsing the view
     if (detailView.is(':visible')) {
-        // Collapse to compact view
         detailView.hide();
         compactView.show();
     } else {
-        // Expand to detailed view
         compactView.hide();
         detailView.show();
     }
 }
 
-// Function to remove an event
 function removeEvent(counter) {
     $('#event-details-' + counter).remove();
     $('#compact-event-' + counter).remove();
-    // Update the lifeEvents array as previously described
+    lifeEvents = lifeEvents.filter(event => event.id !== 'event-' + counter);
 }
 
-// Call this function whenever you add a new life event to make previous ones compact
 function compactPreviousEvents() {
     lifeEvents.forEach((event, index) => {
         if (index < eventCounter) {
@@ -261,44 +240,52 @@ function compactPreviousEvents() {
     });
 }
 
-// Add this call inside your event creation logic, after creating a new event
 compactPreviousEvents();
 
-// Utility function to format dates
 function formatDate(date) {
-    // Format the date as needed
     return date.toISOString().slice(0, 10);
 }
 
-// Inside your existing event creation logic, replace the toggleEventView call
-// with a call to createCompactEventView, and append the returned div to your container
-
 function createEventLabels(container, lifeEvents, birthDate) {
+    const svg = d3.select(container)
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .style("position", "absolute")
+        .style("top", 0)
+        .style("left", 0);
+
+    const lineGenerator = d3.line();
+
     lifeEvents.forEach(event => {
-        // Calculate start and end week numbers
         const eventStartWeek = Math.floor((event.start.getTime() - birthDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
         const eventEndWeek = Math.floor((event.end.getTime() - birthDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
-        
-        // Calculate the mid-point of the event duration
         const eventMidWeek = eventStartWeek + (eventEndWeek - eventStartWeek) / 2;
         const yearPosition = Math.floor(eventMidWeek / 52);
         const weekPosition = eventMidWeek % 52;
 
-        // Create the event label container element
-        const eventLabelContainer = document.createElement('div');
-        eventLabelContainer.classList.add('event-label-container');
-        eventLabelContainer.style.position = 'absolute';
-        eventLabelContainer.style.left = (weekPosition * (weekBoxWidth + weekBoxMargin)) + 'px';
-        eventLabelContainer.style.top = (yearPosition * (weekBoxHeight + weekBoxMargin)) + 'px';
+        const x1 = weekPosition * (weekBoxWidth + weekBoxMargin) + weekBoxWidth / 2;
+        const y1 = yearPosition * (weekBoxHeight + weekBoxMargin) + weekBoxHeight / 2;
 
-        // Set the label text
-        eventLabelContainer.textContent = event.name; // The text content of the label
+        const x2 = x1 < container.offsetWidth / 2 ? 0 : container.offsetWidth;
+        const y2 = y1;
 
-        // Append the label container to the main container
-        container.appendChild(eventLabelContainer);
+        svg.append("line")
+            .attr("x1", x1)
+            .attr("y1", y1)
+            .attr("x2", x2)
+            .attr("y2", y2)
+            .attr("stroke", event.color)
+            .attr("stroke-width", 2);
 
-        // Optionally, set additional styles or attributes as needed
-        eventLabelContainer.style.cursor = 'pointer';
-        eventLabelContainer.title = `${event.name}: ${formatDate(event.start)} - ${formatDate(event.end)}`;
+        svg.append("text")
+            .attr("x", x2 + (x1 < container.offsetWidth / 2 ? -5 : 5))
+            .attr("y", y2)
+            .attr("dy", "0.35em")
+            .attr("text-anchor", x1 < container.offsetWidth / 2 ? "end" : "start")
+            .text(event.name)
+            .style("font-size", "12px");
     });
 }
+
+createEventLabels(document.getElementById('chart-container'), lifeEvents, birthDate);
