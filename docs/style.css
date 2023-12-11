@@ -155,7 +155,7 @@ header{
     padding: 8px;
     font-size: 18px;
     white-space: nowrap;
-    margin-top: -450px;
+    margin-top: -250px;
 }
 
 
@@ -533,4 +533,9 @@ header{
 
 #nav-actions button:hover {
     background-color: #0056b3;
+}
+#user-info span {
+    margin-left: 10px;
+    font-weight: bold;
+    color: #000;
 }

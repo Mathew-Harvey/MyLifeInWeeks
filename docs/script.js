@@ -50,11 +50,14 @@ function createWeekBoxes(container, totalWeeksLived, totalYears) {
     container.innerHTML = '';
     const weeksPerYear = 52;
     let weeksCounter = 0;
+    const today = new Date();
+    const currentWeek = Math.ceil((today - birthDate) / (7 * 24 * 60 * 60 * 1000));
 
     for (let year = 0; year < totalYears; year++) {
         const yearContainer = document.createElement('div');
         yearContainer.classList.add('year-container');
 
+        // Decade spacer (if applicable)
         if (year % 10 === 0) {
             const decadeSpacer = document.createElement('div');
             decadeSpacer.classList.add('decade-spacer');
@@ -62,6 +65,7 @@ function createWeekBoxes(container, totalWeeksLived, totalYears) {
         }
 
         for (let week = 0; week < weeksPerYear; week++) {
+            // Month spacer (if applicable)
             if (week % 4 === 0) {
                 const monthSpacer = document.createElement('div');
                 monthSpacer.classList.add('month-spacer');
@@ -74,8 +78,13 @@ function createWeekBoxes(container, totalWeeksLived, totalYears) {
                 weekBox.classList.add('lived');
             }
 
+            // Highlighting the current week
+            if (weeksCounter === currentWeek) {
+                weekBox.classList.add('current-week'); // Add a class for current week styling
+            }
+
+            // Life events coloring
             if (birthDate) {
-                const weekDate = new Date(birthDate.getTime() + weeksCounter * 7 * 24 * 60 * 60 * 1000);
                 lifeEvents.forEach(event => {
                     const eventStartWeek = Math.floor((event.start.getTime() - birthDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
                     const eventEndWeek = Math.floor((event.end.getTime() - birthDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
@@ -103,7 +112,12 @@ function calculateAge() {
         if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
             age--;
         }
-        totalWeeksLived = age * 52;
+
+        const lastBirthday = new Date(birthDate.getFullYear() + age, birthDate.getMonth(), birthDate.getDate());
+        const daysSinceLastBirthday = Math.ceil((today - lastBirthday) / (24 * 60 * 60 * 1000));
+        const weeksSinceLastBirthday = Math.ceil(daysSinceLastBirthday / 7);
+        totalWeeksLived = age * 52 + weeksSinceLastBirthday;
+
         createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
     }
 }
@@ -164,7 +178,7 @@ $(function () {
         colorInput.spectrum({
             color: "#f00",
             showInput: true,
-            showInitial: true,
+            showInitial: false,
             preferredFormat: "hex",
             showPalette: true,
             palette: [
@@ -344,7 +358,7 @@ function logoutUser() {
 // Listener for authentication state changes
 auth.onAuthStateChanged((user) => {
     if (user) {
-        console.log('User is logged in:', user);
+        console.log('Logged in user email:', user.email);
         switchToLoggedInState(user);
     } else {
         console.log('User is logged out');
@@ -368,28 +382,51 @@ function switchToLoggedOutState() {
 }
 
 function onUserLoggedIn(user) {
-    var userEmail = user.email;
-    document.getElementById('user-info').innerHTML = `
-    <img id="user-avatar" src="${user.photoURL || 'default-avatar.png'}" alt="User Avatar" style="width: 40px; height: 40px; border-radius: 50%;">
-    <span>${userEmail}</span>`;
-
-    document.getElementById('navbar').style.display = 'flex';
-     document.getElementById('main-content').style.display = 'block';
-    document.getElementById('login-container').style.display = 'none'
+   // Display the user's email in the navigation bar
+   const userEmailDisplay = document.getElementById('user-email');
+   if (userEmailDisplay) {
+    userEmailDisplay.textContent = user.email; // Display the user's email
 }
+    document.getElementById('auth-container').style.display = 'none';
+    document.getElementById('register-section').style.display = 'none';
+    document.getElementById('logout-button').style.display = 'block';
+    const navbar = document.getElementById('navbar');
+    navbar.innerHTML = `
+        <div id="user-info">
+            <img id="user-avatar" src="${user.photoURL || 'default-avatar.png'}" alt="User Avatar">
+            <span id="user-email">${user.email}</span>
+        </div>
+        <div>
+            <button onclick="window.print()">Print</button>
+            <button id="logout-button" onclick="logoutUser()">Logout</button>
+        </div>
+    `;
 
+    // Show the main content
+    document.getElementById('main-content').style.display = 'block';
+}
 function onUserLoggedOut() {
-    document.getElementById('user-info').innerHTML = '';
-    document.getElementById('navbar').style.display = 'none';
-    // ... other logout logic ...
-}
+    // Clear the navigation bar user info and hide the main content
+    const navbarUserInfo = document.getElementById('user-info');
+    if (navbarUserInfo) {
+        navbarUserInfo.innerHTML = '';
+    }
 
+    document.getElementById('auth-container').style.display = 'block';
+    document.getElementById('main-content').style.display = 'none';
+    document.getElementById('logout-button').style.display = 'none'; // Hide the logout button
+
+    // Any additional logic for when the user logs out...
+}
 // Event listeners for login, register, and logout buttons
 $('#login-button').click(() => {
     const email = $('#login-email').val();
     const password = $('#login-password').val();
-    loginUser(email, password);
-});
+    if (email && password) {
+        loginUser(email, password);
+    } else {
+        console.error('Email or password is missing');
+    }});
 
 $('#register-button').click(() => {
     const email = $('#register-email').val();
