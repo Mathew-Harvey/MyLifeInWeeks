@@ -19,6 +19,7 @@ header{
     justify-content: center;
     align-items: flex-start;
     width: 100%;
+    
 }
 
 #label-chart-wrapper {
@@ -31,9 +32,9 @@ header{
 
 #years-labels-container {
     margin-top: -45px;
-    margin-right: 10px;
+    margin-right: 5px;
     order: -1;
-    width: 200px;
+    width: 0px;
 }
 
 .year-label {
@@ -53,11 +54,10 @@ header{
     padding: 0;
     margin-bottom: 25px;
     position: relative; 
-    margin-left: 110px;
+    margin-left: 0px;
 }
 
 #week-text-label {
-    margin-left: -600px;
     margin-bottom: 10px;
 }
 
@@ -155,8 +155,8 @@ header{
     padding: 8px;
     font-size: 18px;
     white-space: nowrap;
-    margin-right: 610px;
-    margin-top: -324px;
+    margin-right: 0px;
+    margin-top: -800px;
 }
 
 
