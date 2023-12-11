@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,12 +7,34 @@
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css" />
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
 </head>
-
 <body>
+    <!-- Login/Registration UI -->
+    <div id="auth-container">
+        <!-- Login Section -->
+        <div id="login-section">
+            <h2>Login</h2>
+            <input type="email" id="login-email" placeholder="Email">
+            <input type="password" id="login-password" placeholder="Password">
+            <button id="login-button">Login</button>
+        </div>
+
+        <!-- Registration Section -->
+        <div id="register-section">
+            <h2>Register</h2>
+            <input type="email" id="register-email" placeholder="Email">
+            <input type="password" id="register-password" placeholder="Password">
+            <button id="register-button">Register</button>
+        </div>
+
+        <!-- Logout Button -->
+        <button id="logout-button" style="display:none;">Logout</button>
+    </div>
+
     <div id="floating-div">Life Events
         <div id="add-event-btn" title="Add life event">+</div>
-    </div>
     </div>
     <div class="tooltip">Add life event</div>
     <header>
@@ -23,19 +44,15 @@
     <div class="birthdate-section">
         <p>Enter your birthday and add life events</p>
         <input type="date" id="birthdate" onchange="calculateAge()">
-
         <button id="toggle-life-events">Life Events</button>
     </div>
-
 
     <div id="week-text-label">Weeks</div>
     <div id="year-text-label">Years</div>
     <div id="week-labels-container"></div>
     <div id="masterWrapper">
-        <div id=chart-and-labels-container>
-
+        <div id="chart-and-labels-container">
             <div id="label-chart-wrapper">
-
                 <div id="years-labels-container"></div>
                 <div id="chart-wrapper">
                     <div id="chart-container">
@@ -44,34 +61,14 @@
             </div>
         </div>
     </div>
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-      
-        // Your web app's Firebase configuration
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-          apiKey: "AIzaSyDXdYWM6FFa82V1DN5ecl5V5KqMfWBpc18",
-          authDomain: "mylifeinweeks-6e743.firebaseapp.com",
-          projectId: "mylifeinweeks-6e743",
-          storageBucket: "mylifeinweeks-6e743.appspot.com",
-          messagingSenderId: "72962197769",
-          appId: "1:72962197769:web:886cc755f32e9b3d6f6bd8",
-          measurementId: "G-6E144LFLGX"
-        };
-      
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-      </script>
+
+    <!-- External Libraries -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <!-- Your Custom Script -->
     <script src="./script.js"></script>
 </body>
-
 </html>

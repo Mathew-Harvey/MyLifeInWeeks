@@ -1,3 +1,19 @@
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDXdYWM6FFa82V1DN5ecl5V5KqMfWBpc18",
+    authDomain: "mylifeinweeks-6e743.firebaseapp.com",
+    databaseURL: "https://mylifeinweeks-6e743-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "mylifeinweeks-6e743",
+    storageBucket: "mylifeinweeks-6e743.appspot.com",
+    messagingSenderId: "72962197769",
+    appId: "1:72962197769:web:886cc755f32e9b3d6f6bd8",
+    measurementId: "G-6E144LFLGX"
+  };
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+
 let eventCounter = 0;
 let lifeEvents = [];
 let totalWeeksLived = 0;
@@ -289,3 +305,97 @@ function createEventLabels(container, lifeEvents, birthDate) {
 }
 
 createEventLabels(document.getElementById('chart-container'), lifeEvents, birthDate);
+// Firebase Authentication
+const auth = firebase.auth();
+
+function registerUser(email, password) {
+    auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            // Registration successful
+            console.log('User registered:', userCredential.user);
+            switchToLoggedInState(userCredential.user);
+        })
+        .catch((error) => {
+            console.error('Registration failed:', error.message);
+        });
+}
+
+function loginUser(email, password) {
+    auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            // Login successful
+            console.log('User logged in:', userCredential.user);
+            switchToLoggedInState(userCredential.user);
+        })
+        .catch((error) => {
+            console.error('Login failed:', error.message);
+        });
+}
+
+function logoutUser() {
+    auth.signOut().then(() => {
+        console.log('User logged out');
+        switchToLoggedOutState();
+    }).catch((error) => {
+        console.error('Logout failed:', error.message);
+    });
+}
+
+// Listener for authentication state changes
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        console.log('User is logged in:', user);
+        switchToLoggedInState(user);
+    } else {
+        console.log('User is logged out');
+        switchToLoggedOutState();
+    }
+});
+
+function switchToLoggedInState(user) {
+    // Hide login/register UI and show logout button
+    $('#login-section').hide();
+    $('#register-section').hide();
+    $('#logout-button').show();
+
+    // Additional logic when user logs in...
+}
+
+function switchToLoggedOutState() {
+    // Show login/register UI and hide logout button
+    $('#login-section').show();
+    $('#register-section').show();
+    $('#logout-button').hide();
+
+    // Additional logic when user logs out...
+}
+
+
+
+// Event listeners for login, register, and logout buttons
+$('#login-button').click(() => {
+    const email = $('#login-email').val();
+    const password = $('#login-password').val();
+    loginUser(email, password);
+});
+
+$('#register-button').click(() => {
+    const email = $('#register-email').val();
+    const password = $('#register-password').val();
+    registerUser(email, password);
+});
+
+$('#logout-button').click(logoutUser);
+
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        // User is signed in
+        switchToLoggedInState(user);
+    } else {
+        // User is signed out
+        switchToLoggedOutState();
+    }
+});
+
+
+   

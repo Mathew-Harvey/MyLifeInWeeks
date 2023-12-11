@@ -427,3 +427,64 @@ header{
     white-space: nowrap; /* Ensure the label text does not wrap */
     /* ... additional styles ... */
 }
+#auth-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f8f8f8;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+#login-section,
+#register-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+#login-section h2,
+#register-section h2 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+#login-email,
+#login-password,
+#register-email,
+#register-password {
+    width: 80%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+#login-button,
+#register-button,
+#logout-button {
+    padding: 10px 15px;
+    border-radius: 4px;
+    border: none;
+    color: white;
+    background-color: #007bff;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+#login-button:hover,
+#register-button:hover,
+#logout-button:hover {
+    background-color: #0056b3;
+}
+
+#logout-button {
+    align-self: flex-end;
+}
