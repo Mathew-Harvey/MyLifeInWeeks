@@ -353,21 +353,16 @@ auth.onAuthStateChanged((user) => {
 });
 
 function switchToLoggedInState(user) {
-    // Hide login/register UI and show logout button
-    $('#login-section').hide();
-    $('#register-section').hide();
-    $('#logout-button').show();
-
-    // Additional logic when user logs in...
+    $('#login-container').hide();
+    $('#main-content').show();
+    $('#auth-header').show();
+    // Populate auth-header with user info and logout button
 }
 
 function switchToLoggedOutState() {
-    // Show login/register UI and hide logout button
-    $('#login-section').show();
-    $('#register-section').show();
-    $('#logout-button').hide();
-
-    // Additional logic when user logs out...
+    $('#login-container').show();
+    $('#main-content').hide();
+    $('#auth-header').hide();
 }
 
 
@@ -389,10 +384,8 @@ $('#logout-button').click(logoutUser);
 
 auth.onAuthStateChanged((user) => {
     if (user) {
-        // User is signed in
         switchToLoggedInState(user);
     } else {
-        // User is signed out
         switchToLoggedOutState();
     }
 });
