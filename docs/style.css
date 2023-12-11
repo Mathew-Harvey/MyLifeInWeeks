@@ -10,7 +10,7 @@ body, html {
 }
 
 header{
-    margin-left: 175px;
+    margin-left: 200px;
 }
 
 #masterWrapper {
@@ -155,8 +155,7 @@ header{
     padding: 8px;
     font-size: 18px;
     white-space: nowrap;
-    margin-right: 0px;
-    margin-top: -800px;
+    margin-top: -450px;
 }
 
 
@@ -399,7 +398,7 @@ header{
     cursor: pointer;
 }
 .birthdate-section {
-    margin-left: 175px;
+    margin-left: 110px;
     display: flex;
     align-items: center;
     gap: 10px; /* Space between elements */
@@ -496,4 +495,42 @@ header{
 
 #logout-button {
     align-self: flex-end;
+}
+#navbar {
+    width: 100%; /* Stretch to full width */
+    margin: 0; /* Remove any margin if necessary */
+    background-color: #f8f8f8;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover; /* This will ensure the image covers the area and is not stretched */
+    border: 2px solid #ddd; /* Optional: adds a border around the avatar */
+}
+
+#nav-actions button {
+    padding: 5px 10px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+#nav-actions button:hover {
+    background-color: #0056b3;
 }

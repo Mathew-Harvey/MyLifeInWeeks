@@ -14,12 +14,19 @@
 </head>
 
 <body>
-    <!-- Authentication (Login/Registration) UI -->
-    <div id="auth-header" style="display: none;">
-        <!-- User info and logout will be dynamically inserted here -->
-        <div>User: <span id="user-info"></span></div>
+    <!-- Navigation Bar -->
+<nav id="navbar">
+    <div id="user-info" style="display: flex; align-items: center; gap: 10px;">
+        <img id="user-avatar" src="default-avatar.png" alt="Avatar" >
+        <span></span>
+    </div>
+    <div id="nav-actions">
+        <button id="print-button" onclick="window.print()" style="margin-right: 10px;">Print</button>
         <button id="logout-button" onclick="logoutUser()">Logout</button>
     </div>
+</nav>
+
+
 
     <div id="login-container"
         style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">

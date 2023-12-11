@@ -356,6 +356,7 @@ function switchToLoggedInState(user) {
     $('#login-container').hide();
     $('#main-content').show();
     $('#auth-header').show();
+    $('#navbar').show();
     // Populate auth-header with user info and logout button
 }
 
@@ -363,9 +364,25 @@ function switchToLoggedOutState() {
     $('#login-container').show();
     $('#main-content').hide();
     $('#auth-header').hide();
+    $('#navbar').hide();
 }
 
+function onUserLoggedIn(user) {
+    var userEmail = user.email;
+    document.getElementById('user-info').innerHTML = `
+    <img id="user-avatar" src="${user.photoURL || 'default-avatar.png'}" alt="User Avatar" style="width: 40px; height: 40px; border-radius: 50%;">
+    <span>${userEmail}</span>`;
 
+    document.getElementById('navbar').style.display = 'flex';
+     document.getElementById('main-content').style.display = 'block';
+    document.getElementById('login-container').style.display = 'none'
+}
+
+function onUserLoggedOut() {
+    document.getElementById('user-info').innerHTML = '';
+    document.getElementById('navbar').style.display = 'none';
+    // ... other logout logic ...
+}
 
 // Event listeners for login, register, and logout buttons
 $('#login-button').click(() => {
