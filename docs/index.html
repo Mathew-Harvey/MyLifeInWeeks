@@ -8,23 +8,51 @@
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css" />
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <!-- Add your additional script tags here -->
 </head>
 
 <body>
-    <!-- Navigation Bar -->
-<nav id="navbar">
-    <div id="user-info">
-        
-    </div>
-    <div id="nav-actions">
-        <button id="print-button" onclick="window.print()" style="margin-right: 10px;">Print</button>
-        <button id="logout-button" onclick="logoutUser()">Logout</button>
-    </div>
-</nav>
 
+<!-- 
+    <div id="print-container" style="display: none;">
+        <header>
+            <h1>MY LIFE IN WEEKS</h1>
+        </header>
+        <div id="decade-labels-container"></div>
+        <div id="week-text-label">Weeks</div>
+        <div id="year-text-label">Years</div>
+        <div id="week-labels-container"></div>
+        <div id="masterWrapper">
+            <div id="chart-and-labels-container">
+                <div id="label-chart-wrapper">
+                    <div id="years-labels-container"></div>
+                    <div id="chart-wrapper">
+                        <div id="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> -->
+
+
+    <!-- Navigation Bar -->
+    <nav id="navbar">
+        <div id="user-info">
+
+        </div>
+        <div id="nav-actions">
+            <div id="share-buttons" class="a2a_kit a2a_kit_size_32 a2a_default_style">
+                <!-- AddToAny sharing buttons will be generated here -->
+                <a class="a2a_button_facebook"></a>
+                <a class="a2a_button_twitter"></a>
+                <a class="a2a_button_linkedin"></a>
+                <!-- You can add more social media buttons as needed -->
+            </div>
+            <button onclick="printGrid()">Print My Life</button>
+            <button onclick="downloadImage()">Download My Life</button>
+            <button id="logout-button" onclick="logoutUser()">Logout</button>
+        </div>
+    </nav>
 
 
     <div id="login-container"
@@ -53,8 +81,6 @@
         <header>
             <h1>MY LIFE IN WEEKS</h1>
         </header>
-
-
         <div id="decade-labels-container"></div>
         <div class="birthdate-section">
             <p>Enter your birthday and add life events</p>
@@ -73,16 +99,21 @@
                     </div>
                 </div>
             </div>
-             <div id="floating-div">Life Events
-        <div id="add-event-btn" title="Add life event">+</div>
-    </div>
+            <div id="floating-div">Life Events
+                <div id="add-event-btn" title="Add life event">+</div>
+            </div>
         </div>
     </div>
     <!-- External Libraries -->
+    <script async src="https://static.addtoany.com/menu/page.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
 
     <!-- Your Custom Script -->
     <script src="./script.js"></script>

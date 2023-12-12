@@ -155,7 +155,7 @@ header{
     padding: 8px;
     font-size: 18px;
     white-space: nowrap;
-    margin-top: -250px;
+    margin-top: -50px;
 }
 
 
@@ -477,14 +477,14 @@ header{
 #login-button,
 #register-button,
 #logout-button {
-    padding: 10px 15px;
+
     border-radius: 4px;
     border: none;
     color: white;
     background-color: #007bff;
     cursor: pointer;
     font-size: 14px;
-    margin-top: 10px;
+
 }
 
 #login-button:hover,
@@ -520,6 +520,22 @@ header{
     object-fit: cover; /* This will ensure the image covers the area and is not stretched */
     border: 2px solid #ddd; /* Optional: adds a border around the avatar */
 }
+#nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+#logout-button {
+
+    padding: 5px 10px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+
+}
 
 #nav-actions button {
     padding: 5px 10px;
@@ -538,4 +554,56 @@ header{
     margin-left: 10px;
     font-weight: bold;
     color: #000;
+}
+
+/* This CSS will only apply when printing */
+/* Existing CSS */
+/* ... your existing styles ... */
+
+/* Print Styles */
+@media print {
+    /* Hide everything in the body initially */
+    body * {
+        visibility: hidden;
+    }
+
+    /* Only display the print container and its children */
+    #print-container, #print-container * {
+        visibility: visible;
+    }
+
+    #print-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+    /* Adjust the print container's contents for printing */
+    #print-container header h1 {
+        font-size: 18px; /* Adjust the title size for printing */
+        text-align: center; /* Center the title */
+        margin-bottom: 20px; /* Space below the title */
+    }
+
+    #print-container #week-labels-container,
+    #print-container #years-labels-container {
+        display: block; /* Ensure these are visible and laid out correctly */
+    }
+
+    #print-container #chart-container {
+        max-width: 100%; /* Limit width to prevent overflow */
+        page-break-inside: avoid; /* Prevent breaking the grid across pages */
+    }
+
+    #print-container .week-box, 
+    #print-container .year-container {
+        transform: scale(0.8); /* Scale down the boxes to fit better */
+        transform-origin: top left; /* Ensure scaling doesn't offset positioning */
+    }
+
+    #print-container .year-label,
+    #print-container .week-label {
+        font-size: 8px; /* Smaller font size for print */
+    }
 }
