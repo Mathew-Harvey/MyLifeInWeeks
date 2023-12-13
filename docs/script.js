@@ -132,8 +132,6 @@ function calculateAge() {
     }
 }
 
-
-
 $(document).ready(function () {
     updateLegend();
     updateUserName();
