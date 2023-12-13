@@ -45,10 +45,7 @@ function createYearLabels(totalYears) {
     }
 }
 
-function createDecadeLabels(totalYears) {
-    const decadeLabelsContainer = document.getElementById('decade-labels-container');
-    decadeLabelsContainer.innerHTML = '';
-}
+
 
 function createWeekBoxes(container, totalWeeksLived, totalYears) {
     container.innerHTML = '';
@@ -209,7 +206,6 @@ $(document).ready(function () {
 
     createWeekLabels();
     createYearLabels(100);
-    createDecadeLabels(100);
     createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
 });
 
@@ -223,7 +219,13 @@ function addOrUpdateEvent(counter) {
     const start = new Date(startStr);
     const end = new Date(endStr);
 
-    // Find if the event already exists
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        console.error('Invalid event date:', { startStr, endStr });
+        alert('Invalid event dates. Please enter valid dates.'); // Notify user
+        return; // Exit the function if dates are invalid
+    }
+    console.log('Start Date:', start.toISOString()); // Debugging
+    console.log('End Date:', end.toISOString());   // Debugging
     const eventIndex = lifeEvents.findIndex(e => e.id === 'event-' + counter);
     if (eventIndex !== -1) {
         // Update existing event
@@ -236,16 +238,28 @@ function addOrUpdateEvent(counter) {
 
     createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
     if (auth.currentUser) {
-        const firebaseLifeEvents = lifeEvents.map(event => ({
-            ...event,
-            start: event.start.toISOString(),
-            end: event.end.toISOString()
-        }));
+        const firebaseLifeEvents = lifeEvents.map(event => {
+            // Ensure that both start and end dates are valid before converting to ISO string
+            if (isValidDate(event.start) && isValidDate(event.end)) {
+                return {
+                    ...event,
+                    start: event.start.toISOString(),
+                    end: event.end.toISOString()
+                };
+            } else {
+                console.error('Invalid event date:', event);
+                return event; // Return the original event if dates are invalid
+            }
+        });
         saveLifeEventsToDatabase(auth.currentUser.uid, firebaseLifeEvents);
     }
     console.log("Updated life events:", lifeEvents);
 
-    updateLegend()
+    updateLegend();
+}
+
+function isValidDate(d) {
+    return d instanceof Date && !isNaN(d);
 }
 
 function createCompactEventView(event, counter) {
@@ -502,14 +516,17 @@ function loadLifeEventsFromDatabase(userId) {
     database.ref('users/' + userId + '/lifeEvents').once('value').then((snapshot) => {
         const events = snapshot.val();
         if (events) {
-            lifeEvents = events.map(event => ({
-                    ...event, 
-                    start: new Date(event.start), 
-                    end: new Date(event.end)
-            }));
+            lifeEvents = events.map(event => {
+                const start = new Date(event.start);
+                const end = new Date(event.end);
+                if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+                    console.error('Invalid date in database event:', event);
+                    return { ...event, start: new Date(), end: new Date() }; // Set to current date as fallback
+                }
+                return { ...event, start, end };
+            });
             createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
             console.log("Loaded life events from database:", lifeEvents);
-            updateLegend();
         }
     });
 }
