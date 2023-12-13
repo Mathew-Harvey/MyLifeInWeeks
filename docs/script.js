@@ -134,7 +134,9 @@ function calculateAge() {
 
 
 
-$(function () {
+$(document).ready(function () {
+    updateLegend();
+    updateUserName();
     $("#floating-div").draggable({ containment: "window" }).resizable();
     $("#birthdate").change(calculateAge);
     $('#floating-div').hide();
@@ -199,8 +201,12 @@ $(function () {
             ],
             change: function (color) {
                 $('#' + eventColorId).val(color.toHexString());
+                
             }
         });
+        if (firebase.auth().currentUser) {
+            loadLifeEventsFromDatabase(firebase.auth().currentUser.uid);
+        }
     });
 
     createWeekLabels();
@@ -239,6 +245,9 @@ function addOrUpdateEvent(counter) {
         }));
         saveLifeEventsToDatabase(auth.currentUser.uid, firebaseLifeEvents);
     }
+    console.log("Updated life events:", lifeEvents);
+
+    updateLegend()
 }
 
 function createCompactEventView(event, counter) {
@@ -375,6 +384,8 @@ function loginUser() {
     } else {
         console.error('Email or password is missing');
     }
+    updateLegend();
+    updateUserName();
 }
 
 
@@ -385,6 +396,8 @@ function logoutUser() {
     }).catch((error) => {
         console.error('Logout failed:', error.message);
     });
+    updateLegend();
+    updateUserName();
 }
 
 // Listener for authentication state changes
@@ -398,6 +411,8 @@ auth.onAuthStateChanged((user) => {
     } else {
         console.log('User is logged out');
         switchToLoggedOutState();
+        lifeEvents = [];
+        updateLegend();
     }
 });
 
@@ -441,6 +456,8 @@ function onUserLoggedIn(user) {
 
     // Show the main content
     document.getElementById('main-content').style.display = 'block';
+    updateLegend();
+    updateUserName();
 }
 function onUserLoggedOut() {
     // Clear the navigation bar user info and hide the main content
@@ -453,7 +470,8 @@ function onUserLoggedOut() {
     document.getElementById('main-content').style.display = 'none';
     document.getElementById('logout-button').style.display = 'none'; // Hide the logout button
 
-    // Any additional logic for when the user logs out...
+    updateLegend();
+    updateUserName();
 }
 // Event listeners for login, register, and logout buttons
 $('#login-button').click(() => {
@@ -492,6 +510,8 @@ function loadLifeEventsFromDatabase(userId) {
                     end: new Date(event.end)
             }));
             createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
+            console.log("Loaded life events from database:", lifeEvents);
+            updateLegend();
         }
     });
 }
@@ -510,7 +530,47 @@ function loadBirthDateFromDatabase(userId) {
             calculateAge();
         }
     });
+
 }
+function updateLegend() {
+    const legendContainer = document.getElementById('events-legend');
+    if (!legendContainer) return;
+    legendContainer.innerHTML = ''; // Clear existing legend items
+
+    lifeEvents.forEach(event => {
+        const legendItem = document.createElement('div');
+        legendItem.classList.add('event-legend-item');
+
+        const colorIndicator = document.createElement('div');
+        colorIndicator.classList.add('event-color-indicator');
+        colorIndicator.style.backgroundColor = event.color;
+
+        const eventName = document.createElement('span');
+        eventName.classList.add('event-name');
+        eventName.textContent = event.name;
+
+        legendItem.appendChild(colorIndicator);
+        legendItem.appendChild(eventName);
+        legendContainer.appendChild(legendItem);
+    });
+}
+
+
+function updateUserName() {
+    const user = firebase.auth().currentUser;
+    if (user) {
+        const email = user.email;
+        const userName = email.substring(0, email.lastIndexOf("@"));
+        const userNameElement = document.getElementById('user-name');
+        if (userNameElement) {
+            userNameElement.textContent = userName;
+        }
+    }
+}
+// Call these functions whenever the life events update or user logs in/out
+
+
+
 
 function printContent() {
     window.print();

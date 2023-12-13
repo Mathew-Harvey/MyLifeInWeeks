@@ -13,27 +13,6 @@
 
 <body>
 
-<!-- 
-    <div id="print-container" style="display: none;">
-        <header>
-            <h1>MY LIFE IN WEEKS</h1>
-        </header>
-        <div id="decade-labels-container"></div>
-        <div id="week-text-label">Weeks</div>
-        <div id="year-text-label">Years</div>
-        <div id="week-labels-container"></div>
-        <div id="masterWrapper">
-            <div id="chart-and-labels-container">
-                <div id="label-chart-wrapper">
-                    <div id="years-labels-container"></div>
-                    <div id="chart-wrapper">
-                        <div id="chart-container"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> -->
-
 
     <!-- Navigation Bar -->
     <nav id="navbar">
@@ -75,33 +54,42 @@
             <button id="register-button" onclick="registerUser()">Register</button>
         </div>
     </div>
+    
 
     <!-- Main Content -->
     <div id="main-content" style="display: none;">
         <header>
             <h1>MY LIFE IN WEEKS</h1>
         </header>
-        <div id="decade-labels-container"></div>
+
         <div class="birthdate-section">
             <p>Enter your birthday and add life events</p>
             <input type="date" id="birthdate" onchange="calculateAge()">
             <button id="toggle-life-events">Life Events</button>
         </div>
+
         <div id="week-text-label">Weeks</div>
         <div id="year-text-label">Years</div>
         <div id="week-labels-container"></div>
-        <div id="masterWrapper">
-            <div id="chart-and-labels-container">
-                <div id="label-chart-wrapper">
-                    <div id="years-labels-container"></div>
-                    <div id="chart-wrapper">
-                        <div id="chart-container"></div>
+
+        <div id="parent-container">
+            <div id="label-chart-wrapper">
+                <div id="years-labels-container"></div>
+                <div id="chart-wrapper">
+                    <div id="chart-container">
+                        <!-- Your chart content will go here -->
                     </div>
                 </div>
             </div>
-            <div id="floating-div">Life Events
-                <div id="add-event-btn" title="Add life event">+</div>
+
+            <div id="legend-container">
+                <h3 id="user-name">Life Events</h3>
+                <div id="events-legend"></div>
             </div>
+        </div>
+
+        <div id="floating-div">Life Events
+            <div id="add-event-btn" title="Add life event">+</div>
         </div>
     </div>
     <!-- External Libraries -->
