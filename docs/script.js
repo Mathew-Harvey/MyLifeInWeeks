@@ -516,21 +516,19 @@ function loadLifeEventsFromDatabase(userId) {
     database.ref('users/' + userId + '/lifeEvents').once('value').then((snapshot) => {
         const events = snapshot.val();
         if (events) {
-            lifeEvents = events.map(event => {
-                const start = new Date(event.start);
-                const end = new Date(event.end);
-                if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-                    console.error('Invalid date in database event:', event);
-                    return { ...event, start: new Date(), end: new Date() }; // Set to current date as fallback
-                }
-                return { ...event, start, end };
-            });
+            lifeEvents = events.map(event => ({
+                ...event, 
+                start: new Date(event.start), 
+                end: new Date(event.end)
+            }));
             createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
-            console.log("Loaded life events from database:", lifeEvents);
+            updateLegend();
+            updateFloatingDivWithEvents(); // Update floating div with events
         }
+    }).catch(error => {
+        console.error('Error loading life events:', error);
     });
 }
-
 
 function saveBirthDateToDatabase(userId, birthDate) {
     database.ref('users/' + userId + '/birthDate').set(birthDate.toISOString());
@@ -547,29 +545,127 @@ function loadBirthDateFromDatabase(userId) {
     });
 
 }
+function addEvent() {
+    eventCounter++;
+    const eventNameId = 'event-name-' + eventCounter;
+    const eventStartId = 'event-start-' + eventCounter;
+    const eventEndId = 'event-end-' + eventCounter;
+    const eventColorId = 'event-color-' + eventCounter;
+
+    const eventGroup = $('<div/>', { class: 'event-group' }).appendTo("#floating-div");
+
+    $('<input/>', { type: 'text', id: eventNameId, placeholder: 'Event Name' }).appendTo(eventGroup);
+    $('<input/>', { type: 'date', class: 'date-picker', id: eventStartId, placeholder: 'From' }).appendTo(eventGroup);
+    $('<input/>', { type: 'date', class: 'date-picker', id: eventEndId, placeholder: 'To' }).appendTo(eventGroup);
+    $('<input/>', { type: 'color', id: eventColorId }).appendTo(eventGroup);
+
+    $('<button/>', {
+        text: 'Save Event',
+        class: 'submit-event',
+        click: function () { addOrUpdateEvent(eventCounter); }
+    }).appendTo(eventGroup);
+
+    $('<button/>', {
+        text: 'x',
+        class: 'remove-event',
+        click: function (e) {
+            e.stopPropagation();
+            eventGroup.remove();
+            const eventIndex = lifeEvents.findIndex(event => event.id === 'event-' + eventCounter);
+            if (eventIndex > -1) {
+                lifeEvents.splice(eventIndex, 1);
+            }
+            createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
+        }
+    }).appendTo(eventGroup);
+
+    // Setup the date picker for the new inputs
+    $('#' + eventStartId + ', #' + eventEndId).datepicker({
+        dateFormat: 'yy-mm-dd',
+        changeMonth: true,
+        changeYear: true,
+        yearRange: '1900:' + new Date().getFullYear()
+    });
+}
+
+
+function updateFloatingDivWithEvents() {
+    $('#floating-div').empty(); // Clear existing content
+
+    lifeEvents.forEach((event, index) => {
+        // Generate HTML for each event and append it to the floating div
+        const eventHtml = `
+            <div class="event-group" id="event-${index}">
+                <input type="text" value="${event.name}" placeholder="Event Name" readonly>
+                <input type="text" value="${formatDate(event.start)}" class="date-picker" placeholder="From" readonly>
+                <input type="text" value="${formatDate(event.end)}" class="date-picker" placeholder="To" readonly>
+                <input type="color" value="${event.color}" readonly>
+            </div>
+        `;
+        $('#floating-div').append(eventHtml);
+    });
+    addAddEventButton();
+}
+function addAddEventButton() {
+    const addEventButtonHtml = `<div id="add-event-btn" title="Add life event">+</div>`;
+    $('#floating-div').append(addEventButtonHtml);
+
+    // Attach the click event listener to the 'Add Event' button
+    $('#add-event-btn').off('click').on('click', function (e) {
+        e.stopPropagation();
+        addEvent(); // Function to handle adding a new event
+    });
+}
+lifeEvents.forEach((event, index) => {
+    const eventHtml = `
+        <div class="event-group" id="event-${index}">
+            <input type="text" value="${event.name}" placeholder="Event Name" readonly>
+            <input type="text" value="${formatDate(event.start)}" class="date-picker" placeholder="From" readonly>
+            <input type="text" value="${formatDate(event.end)}" class="date-picker" placeholder="To" readonly>
+            <input type="color" value="${event.color}" readonly>
+            <button class="remove-event" data-event-id="${index}">x</button>
+        </div>
+    `;
+    $('#floating-div').append(eventHtml);
+});
+
+// Attach click event listeners to the 'Remove Event' buttons
+$('.remove-event').off('click').on('click', function (e) {
+    e.stopPropagation();
+    const eventId = $(this).data('event-id');
+    removeEvent(eventId); // Function to handle removing an event
+});
 function updateLegend() {
     const legendContainer = document.getElementById('events-legend');
-    if (!legendContainer) return;
+    if (!legendContainer) {
+        console.error('Legend container not found');
+        return;
+    }
     legendContainer.innerHTML = ''; // Clear existing legend items
 
     lifeEvents.forEach(event => {
+        // Create the container for each legend item
         const legendItem = document.createElement('div');
         legendItem.classList.add('event-legend-item');
 
+        // Create the color indicator
         const colorIndicator = document.createElement('div');
         colorIndicator.classList.add('event-color-indicator');
         colorIndicator.style.backgroundColor = event.color;
 
+        // Create the event name text
         const eventName = document.createElement('span');
         eventName.classList.add('event-name');
         eventName.textContent = event.name;
 
+        // Append color indicator and event name to the legend item
         legendItem.appendChild(colorIndicator);
         legendItem.appendChild(eventName);
+
+        // Append the legend item to the legend container
         legendContainer.appendChild(legendItem);
     });
 }
-
 
 function updateUserName() {
     const user = firebase.auth().currentUser;
