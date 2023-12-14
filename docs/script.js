@@ -196,7 +196,7 @@ $(document).ready(function () {
             ],
             change: function (color) {
                 $('#' + eventColorId).val(color.toHexString());
-                
+
             }
         });
         if (firebase.auth().currentUser) {
@@ -307,23 +307,35 @@ function toggleEventView(counter) {
     }
 }
 
-function removeEvent(counter) {
-    $('#event-details-' + counter).remove();
-    $('#compact-event-' + counter).remove();
-    lifeEvents = lifeEvents.filter(event => event.id !== 'event-' + counter);
+function removeEvent(eventId) {
+    // Remove event from the lifeEvents array
+    lifeEvents = lifeEvents.filter(event => event.id !== eventId);
+
+    // Update the grid
+    createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
+
+    // Update the legend
+    updateLegend();
+
+    // Update the floating div
+    updateFloatingDivWithEvents();
+
+    // Save updated life events to database
     if (auth.currentUser) {
-        saveLifeEventsToDatabase(auth.currentUser.uid, lifeEvents);
+        const firebaseLifeEvents = lifeEvents.map(event => ({
+            ...event,
+            start: event.start.toISOString(),
+            end: event.end.toISOString()
+        }));
+        saveLifeEventsToDatabase(auth.currentUser.uid, firebaseLifeEvents);
     }
-}
-function compactPreviousEvents() {
-    lifeEvents.forEach((event, index) => {
-        if (index < eventCounter) {
-            toggleEventView(index);
-        }
-    });
+
+    // Log for debugging
+    console.log("Life events after removal:", lifeEvents);
 }
 
-compactPreviousEvents();
+
+
 
 function formatDate(date) {
     return date.toISOString().slice(0, 10);
@@ -520,19 +532,31 @@ function loadLifeEventsFromDatabase(userId) {
     database.ref('users/' + userId + '/lifeEvents').once('value').then((snapshot) => {
         const events = snapshot.val();
         if (events) {
-            lifeEvents = events.map(event => ({
-                ...event, 
-                start: new Date(event.start), 
-                end: new Date(event.end)
-            }));
+            lifeEvents = events.map(event => {
+                if (isValidDateString(event.start) && isValidDateString(event.end)) {
+                    return {
+                        ...event,
+                        start: new Date(event.start),
+                        end: new Date(event.end)
+                    };
+                } else {
+                    console.error('Invalid event date:', event);
+                    return null; // or handle it differently
+                }
+            }).filter(event => event != null); // Remove invalid events
             eventCounter = lifeEvents.reduce((max, event) => Math.max(max, parseInt(event.id.replace('event-', ''))), 0) + 1;
             createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
             updateLegend();
-            updateFloatingDivWithEvents(); // Update floating div with events
+            updateFloatingDivWithEvents();
         }
     }).catch(error => {
         console.error('Error loading life events:', error);
     });
+}
+
+function isValidDateString(dateStr) {
+    const date = new Date(dateStr);
+    return !isNaN(date.getTime());
 }
 
 function saveBirthDateToDatabase(userId, birthDate) {
@@ -558,59 +582,63 @@ function addEvent() {
 
     const eventGroup = $('<div/>', { class: 'event-group' }).appendTo("#floating-div");
 
-    $('<input/>', { type: 'text', id: eventNameId, placeholder: 'Event Name' }).appendTo(eventGroup);
-    $('<input/>', { type: 'date', class: 'date-picker', id: eventStartId, placeholder: 'From' }).appendTo(eventGroup);
-    $('<input/>', { type: 'date', class: 'date-picker', id: eventEndId, placeholder: 'To' }).appendTo(eventGroup);
-    $('<input/>', { type: 'color', id: eventColorId }).appendTo(eventGroup);
+    // Name and color container
+    const nameColorContainer = $('<div/>', { class: 'name-color-container' }).appendTo(eventGroup);
+    $('<input/>', { type: 'text', id: eventNameId, placeholder: 'Event Name' }).appendTo(nameColorContainer);
+    $('<input/>', { type: 'color', id: eventColorId }).appendTo(nameColorContainer);
 
-    $('<button/>', {
-        text: 'Save Event',
-        class: 'submit-event',
-        click: function () { addOrUpdateEvent(eventCounter); }
-    }).appendTo(eventGroup);
+    // Date container
+    const dateContainer = $('<div/>', { class: 'date-container' }).appendTo(eventGroup);
+    $('<input/>', { type: 'date', class: 'date-picker', id: eventStartId, placeholder: 'From' }).appendTo(dateContainer);
+    $('<input/>', { type: 'date', class: 'date-picker', id: eventEndId, placeholder: 'To' }).appendTo(dateContainer);
 
+    // Add buttons
+    $('<button/>', { text: 'Save Event', class: 'submit-event', click: function () { addOrUpdateEvent(eventCounter); } }).appendTo(eventGroup);
     $('<button/>', {
         text: 'x',
         class: 'remove-event',
         click: function (e) {
             e.stopPropagation();
-            eventGroup.remove();
-            const eventIndex = lifeEvents.findIndex(event => event.id === 'event-' + eventCounter);
-            if (eventIndex > -1) {
-                lifeEvents.splice(eventIndex, 1);
-            }
-            createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
+            removeEvent('event-' + eventCounter);
         }
     }).appendTo(eventGroup);
-
-    // Setup the date picker for the new inputs
+    // Setup date picker
     $('#' + eventStartId + ', #' + eventEndId).datepicker({
-        dateFormat: 'yy-mm-dd',
-        changeMonth: true,
-        changeYear: true,
-        yearRange: '1900:' + new Date().getFullYear()
+        dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true, yearRange: '1900:' + new Date().getFullYear()
     });
 }
 
 
 function updateFloatingDivWithEvents() {
-    $('#floating-div').empty(); // Clear existing content
+    $('#floating-div').empty();
 
     lifeEvents.forEach((event, index) => {
-        // Generate HTML for each event and append it to the floating div
-        const eventHtml = `
-            <div class="event-group" id="event-${index}">
-                <input type="text" value="${event.name}" placeholder="Event Name" readonly>
-                <input type="date" value="${formatDate(event.start)}" class="date-picker" placeholder="From" readonly>
-                <input type="date" value="${formatDate(event.end)}" class="date-picker" placeholder="To" readonly>
-                <input type="color" value="${event.color}" readonly>
-                <button class="remove-event" data-event-id="${index}">x</button>
-            </div>
-        `;
-        $('#floating-div').append(eventHtml);
+        const eventGroup = $('<div/>', { class: 'event-group', id: `event-${index}` }).appendTo('#floating-div');
+
+        // Name and color container
+        const nameColorContainer = $('<div/>', { class: 'name-color-container' }).appendTo(eventGroup);
+        $('<input/>', { type: 'text', value: event.name, placeholder: 'Event Name', readonly: true }).appendTo(nameColorContainer);
+        $('<input/>', { type: 'color', value: event.color, readonly: true }).appendTo(nameColorContainer);
+
+        // Date container
+        const dateContainer = $('<div/>', { class: 'date-container' }).appendTo(eventGroup);
+        $('<input/>', { type: 'date', value: formatDate(event.start), class: 'date-picker', placeholder: 'From', readonly: true }).appendTo(dateContainer);
+        $('<input/>', { type: 'date', value: formatDate(event.end), class: 'date-picker', placeholder: 'To', readonly: true }).appendTo(dateContainer);
+
+        // Remove event button
+        $('<button/>', {
+            class: 'remove-event',
+            text: 'x',
+            'data-event-id': `event-${index}`,
+            click: function () {
+                removeEvent(`event-${index}`);
+            }
+        }).appendTo(eventGroup);
     });
+
     addAddEventButton();
 }
+
 function addAddEventButton() {
     const addEventButtonHtml = `<div id="add-event-btn" title="Add life event">+</div>`;
     $('#floating-div').append(addEventButtonHtml);
@@ -621,6 +649,7 @@ function addAddEventButton() {
         addEvent(); // Function to handle adding a new event
     });
 }
+
 lifeEvents.forEach((event, index) => {
     const eventHtml = `
         <div class="event-group" id="event-${index}">
@@ -698,14 +727,14 @@ function printGrid() {
     html2canvas(mainContent, { scale: 2, logging: true, scrollY: -window.scrollY }).then(canvas => {
         const image = canvas.toDataURL("image/png");
         const windowContent = '<!DOCTYPE html>' +
-                              '<html>' +
-                              '<head><title>Print</title></head>' +
-                              '<body style="margin: 0; padding: 0; box-sizing: border-box; font-family: Arial;">' +
-                              '<div style="text-align: center; margin: auto; page-break-inside: avoid;">' +
-                                  '<img src="' + image + '" style="width: 100%; max-width: 800px; max-height: 1120px; height: auto;">' +
-                              '</div>' +
-                              '</body>' +
-                              '</html>';
+            '<html>' +
+            '<head><title>Print</title></head>' +
+            '<body style="margin: 0; padding: 0; box-sizing: border-box; font-family: Arial;">' +
+            '<div style="text-align: center; margin: auto; page-break-inside: avoid;">' +
+            '<img src="' + image + '" style="width: 100%; max-width: 800px; max-height: 1120px; height: auto;">' +
+            '</div>' +
+            '</body>' +
+            '</html>';
         const printWin = window.open('', '', 'width=840,height=1189'); // A4 size: 8.27 × 11.69 inches
         printWin.document.open();
         printWin.document.write(windowContent);
