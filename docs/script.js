@@ -739,3 +739,19 @@ function printGrid() {
         console.error('Error generating print image:', error);
     });
 }
+function downloadImage() {
+    const content = document.getElementById('main-content');
+    html2canvas(content, { scale: 2, useCORS: true }).then(canvas => {
+        // Ensure the canvas was created
+        if (canvas) {
+            const link = document.createElement('a');
+            link.download = 'my-life-in-weeks.png';
+            link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link); // Append link to body temporarily
+            link.click(); // Simulate click to trigger download
+            document.body.removeChild(link); // Remove link after triggering download
+        }
+    }).catch(error => {
+        console.error('Error generating image:', error);
+    });
+}

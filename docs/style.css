@@ -163,7 +163,7 @@ header{
     padding: 8px;
     font-size: 18px;
     white-space: nowrap;
-    margin-top: -300px;
+    margin-top: -240px;
     margin-left: -700px;
 }
 
@@ -662,3 +662,5 @@ header{
         font-size: 8px; /* Smaller font size for print */
     }
 }
+
+
