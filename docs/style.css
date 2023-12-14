@@ -163,7 +163,7 @@ header{
     padding: 8px;
     font-size: 18px;
     white-space: nowrap;
-    margin-top: -240px;
+    margin-top: -460px;
     margin-left: -700px;
 }
 
@@ -574,18 +574,17 @@ header{
     color: #000;
 }
 #legend-container {
+    background-color: transparent;
     position: absolute; /* Positioned absolutely relative to its nearest positioned ancestor */
     top: 0; /* Align to the top of the parent container */
-    right: -270px; /* Align to the right side of the parent container */
+    right: -250px; /* Align to the right side of the parent container */
     width: 250px; /* Set a fixed width for the legend */
-    margin-top: 20px; /* Give some space from the top */
+    margin-top: -25px; /* Give some space from the top */
     margin-right: 20px; /* Give some space from the right */
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.1); /* Add a shadow to the legend */
-    padding: 1%;
-    border-radius: 5%;
+
 }
 #legend-container h3 {
-    text-align: center;
+    text-align: Lef;
     margin-bottom: 20px;
 }
 

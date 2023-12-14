@@ -739,10 +739,18 @@ function printGrid() {
         console.error('Error generating print image:', error);
     });
 }
+
+
+
 function downloadImage() {
     const content = document.getElementById('main-content');
-    html2canvas(content, { scale: 2, useCORS: true }).then(canvas => {
-        // Ensure the canvas was created
+
+    const originalWidth = content.style.width;
+    content.style.width = '1000px'
+    const yearTextLabel = document.getElementById('year-text-label');
+    const originalTransform = yearTextLabel.style.transform;
+    yearTextLabel.style.transform = 'translateY(-50%) rotate(-90deg)';
+    html2canvas(content, { scale: 1, useCORS: true }).then(canvas => {
         if (canvas) {
             const link = document.createElement('a');
             link.download = 'my-life-in-weeks.png';
@@ -752,6 +760,8 @@ function downloadImage() {
             document.body.removeChild(link); // Remove link after triggering download
         }
     }).catch(error => {
+        content.style.width = originalWidth;
         console.error('Error generating image:', error);
+        yearTextLabel.style.transform = originalTransform;
     });
 }
