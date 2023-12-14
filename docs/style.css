@@ -334,9 +334,13 @@ header{
   
   /* Style for the date picker inputs */
   .date-picker {
-    width: calc(50% - 5px);
-  }
-  
+    width: auto; /* Adjust the width as needed */
+    padding: 5px; /* Reduce padding for a more compact look */
+    margin: 2px 0; /* Minimize margin */
+    border: 1px solid #ccc; /* Optional: for a cleaner border */
+    border-radius: 4px; /* Rounded corners for a softer look */
+    font-size: 14px; /* Adjust font size for compactness */
+}
   /* Style for the color picker and submit button container */
   .color-submit-container {
     display: flex;
@@ -386,7 +390,7 @@ header{
     margin-bottom: 10px;
     display: flex;
     flex-direction: column;
-    gap: 8px; /* Adjust the space between items */
+    gap: 5px; /* Adjust the space between items */
   }
   
 .event-name-and-color {

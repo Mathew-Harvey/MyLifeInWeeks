@@ -255,7 +255,7 @@ function addOrUpdateEvent(counter) {
         eventCounter++;
     }
     updateFloatingDivWithEvents();
-    addAddEventButton();
+ 
 }
 
 function isValidDate(d) {
@@ -311,7 +311,7 @@ function removeEvent(eventId) {
     createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
     updateLegend();
     updateFloatingDivWithEvents();
-    addAddEventButton();
+  
 
     // Save updated life events to database
     if (auth.currentUser) {
@@ -602,23 +602,26 @@ $('<button/>', {
 
 
 function updateFloatingDivWithEvents() {
-    $('#floating-div').empty();
-    lifeEvents.forEach((event, index) => {
-        // Generate HTML for each event and append it to the floating div
-        const eventHtml = `
-            <div class="event-group" id="${event.id}">
-                <input type="text" value="${event.name}" placeholder="Event Name" readonly>
-                <input type="date" value="${formatDate(event.start)}" class="date-picker" placeholder="From" readonly>
-                <input type="date" value="${formatDate(event.end)}" class="date-picker" placeholder="To" readonly>
-                <input type="color" value="${event.color}" readonly>
-                <button class="remove-event" data-event-id="${event.id}">x</button>
-            </div>
-        `;
-        $('#floating-div').append(eventHtml);
+    $('#floating-div').empty(); 
+    lifeEvents.forEach(event => {
+        const eventGroup = $('<div/>', { class: 'event-group', id: event.id }).appendTo("#floating-div");
+
+        // Name and color container
+        const nameColorContainer = $('<div/>', { class: 'name-color-container' }).appendTo(eventGroup);
+        $('<input/>', { type: 'text', value: event.name, readonly: true }).appendTo(nameColorContainer);
+        $('<input/>', { type: 'color', value: event.color, readonly: true }).appendTo(nameColorContainer);
+
+        // Date container
+        const dateContainer = $('<div/>', { class: 'date-container' }).appendTo(eventGroup);
+        $('<input/>', { type: 'date', class: 'date-picker', value: formatDate(event.start), readonly: true }).appendTo(dateContainer);
+        $('<input/>', { type: 'date', class: 'date-picker', value: formatDate(event.end), readonly: true }).appendTo(dateContainer);
+
+        // Delete button
+        $('<button/>', { text: 'x', class: 'remove-event', 'data-event-id': event.id }).appendTo(eventGroup);
     });
     attachDeleteEventListeners();
+    addAddEventButton();
 }
-
 function attachDeleteEventListeners() {
     $('.remove-event').off('click').on('click', function (e) {
         e.stopPropagation();
