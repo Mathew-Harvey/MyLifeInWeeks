@@ -259,6 +259,7 @@ function addOrUpdateEvent(counter) {
     if (eventIndex === -1) {
         eventCounter++;
     }
+    updateFloatingDivWithEvents();
 }
 
 function isValidDate(d) {
@@ -600,9 +601,10 @@ function updateFloatingDivWithEvents() {
         const eventHtml = `
             <div class="event-group" id="event-${index}">
                 <input type="text" value="${event.name}" placeholder="Event Name" readonly>
-                <input type="text" value="${formatDate(event.start)}" class="date-picker" placeholder="From" readonly>
-                <input type="text" value="${formatDate(event.end)}" class="date-picker" placeholder="To" readonly>
+                <input type="date" value="${formatDate(event.start)}" class="date-picker" placeholder="From" readonly>
+                <input type="date" value="${formatDate(event.end)}" class="date-picker" placeholder="To" readonly>
                 <input type="color" value="${event.color}" readonly>
+                <button class="remove-event" data-event-id="${index}">x</button>
             </div>
         `;
         $('#floating-div').append(eventHtml);
