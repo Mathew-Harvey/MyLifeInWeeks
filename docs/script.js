@@ -740,7 +740,7 @@ function printGrid() {
     });
 }
 
-
+const clarityScaleFactor = window.devicePixelRatio || 4;
 
 function downloadImage() {
     const content = document.getElementById('main-content');
@@ -750,18 +750,20 @@ function downloadImage() {
     const yearTextLabel = document.getElementById('year-text-label');
     const originalTransform = yearTextLabel.style.transform;
     yearTextLabel.style.transform = 'translateY(-50%) rotate(-90deg)';
-    html2canvas(content, { scale: 1, useCORS: true }).then(canvas => {
+    html2canvas(content, { scale: clarityScaleFactor, useCORS: true }).then(canvas => {
         if (canvas) {
             const link = document.createElement('a');
             link.download = 'my-life-in-weeks.png';
-            link.href = canvas.toDataURL('image/png');
-            document.body.appendChild(link); // Append link to body temporarily
-            link.click(); // Simulate click to trigger download
-            document.body.removeChild(link); // Remove link after triggering download
+            link.href = canvas.toDataURL('image/png', 1.0);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
+
     }).catch(error => {
         content.style.width = originalWidth;
         console.error('Error generating image:', error);
-        yearTextLabel.style.transform = originalTransform;
+        
     });
+    yearTextLabel.style.transform = originalTransform;
 }
