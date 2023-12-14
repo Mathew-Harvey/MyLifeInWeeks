@@ -256,6 +256,9 @@ function addOrUpdateEvent(counter) {
     console.log("Updated life events:", lifeEvents);
 
     updateLegend();
+    if (eventIndex === -1) {
+        eventCounter++;
+    }
 }
 
 function isValidDate(d) {
@@ -521,6 +524,7 @@ function loadLifeEventsFromDatabase(userId) {
                 start: new Date(event.start), 
                 end: new Date(event.end)
             }));
+            eventCounter = lifeEvents.reduce((max, event) => Math.max(max, parseInt(event.id.replace('event-', ''))), 0) + 1;
             createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
             updateLegend();
             updateFloatingDivWithEvents(); // Update floating div with events
@@ -546,7 +550,6 @@ function loadBirthDateFromDatabase(userId) {
 
 }
 function addEvent() {
-    eventCounter++;
     const eventNameId = 'event-name-' + eventCounter;
     const eventStartId = 'event-start-' + eventCounter;
     const eventEndId = 'event-end-' + eventCounter;
