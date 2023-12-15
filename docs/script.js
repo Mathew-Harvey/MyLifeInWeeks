@@ -461,17 +461,7 @@ function onUserLoggedIn(user) {
     document.getElementById('auth-container').style.display = 'none';
     document.getElementById('register-section').style.display = 'none';
     document.getElementById('logout-button').style.display = 'block';
-    const navbar = document.getElementById('navbar');
-    navbar.innerHTML = `
-        <div id="user-info">
-            <img id="user-avatar" src="${user.photoURL || 'default-avatar.png'}" alt="User Avatar">
-            <span id="user-email">${user.email}</span>
-        </div>
-        <div>
-            <button onclick="window.print()">Print</button>
-            <button id="logout-button" onclick="logoutUser()">Logout</button>
-        </div>
-    `;
+ 
 
     // Show the main content
     document.getElementById('main-content').style.display = 'block';

@@ -22,12 +22,11 @@
         <div id="nav-actions">
             <div id="share-buttons" class="a2a_kit a2a_kit_size_32 a2a_default_style">
                 <!-- AddToAny sharing buttons will be generated here -->
-                <a class="a2a_button_facebook"></a>
-                <a class="a2a_button_twitter"></a>
-                <a class="a2a_button_linkedin"></a>
+                <a class="a2a_button_facebook" style="visibility: hidden"></a>
+                <a class="a2a_button_twitter" style="visibility: hidden"></a>
+                <a class="a2a_button_linkedin" style="visibility: hidden"></a>
                 <!-- You can add more social media buttons as needed -->
             </div>
-            <button onclick="printGrid()">Print My Life</button>
             <button onclick="downloadImage()">Download My Life</button>
             <button id="logout-button" onclick="logoutUser()">Logout</button>
         </div>
@@ -76,9 +75,7 @@
             <div id="label-chart-wrapper">
                 <div id="years-labels-container"></div>
                 <div id="chart-wrapper">
-                    <div id="chart-container">
-                        <!-- Your chart content will go here -->
-                    </div>
+                    <div id="chart-container"></div>
                 </div>
             </div>
 
