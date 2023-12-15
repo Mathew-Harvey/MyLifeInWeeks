@@ -4,6 +4,7 @@
 **/google-services.json
 **/GoogleService-Info.plist
 
+docs/firebaseConfig.js
 # General
 # ---------------------
 # Dependency directories
