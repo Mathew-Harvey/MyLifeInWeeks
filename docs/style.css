@@ -1,4 +1,5 @@
-body, html {
+body,
+html {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
@@ -6,7 +7,84 @@ body, html {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    min-width: 100vw;
+    min-height: 100vh;
+    background: radial-gradient(circle at top right, #160285 10%, #ecbedd 95%, #f1c8c8);
+    background-attachment: fixed;
+    color: white;
+
+
+}
+
+
+#login-container {
+    flex-grow: 1; /* Allow the container to grow and fill available space */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Center content vertically in the available space */
+    align-items: stretch; /* Center content horizontally */
     width: 100%;
+}
+
+#login-section {
+    flex-grow: 1; /* Allow the container to grow and fill available space */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Center content vertically in the available space */
+    align-items: stretch; /* Center content horizontally */
+    width: 100%;
+}
+
+#login-container h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+
+}
+
+#login-container p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+h1 {
+    color: white;
+    font-size: 2em;
+    animation: 1000ms ease 0.5s 1 normal forwards running kitpAN;
+}
+
+p {
+    color: white;
+
+}
+
+#new-navbar {
+    background: transparent;
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 20px;
+    width: 100%;
+
+}
+
+
+#new-navbar #logo a,
+#new-navbar #nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.2rem;
+    margin: 0 1rem;
+}
+
+#new-navbar #nav-links a:hover,
+#new-navbar #logo a:hover {
+    text-decoration: underline;
 }
 
 #masterWrapper {
@@ -48,13 +126,16 @@ body, html {
     width: 100%;
     box-sizing: border-box;
     padding: 0;
-    position: relative; 
+    position: relative;
     margin-left: -45px;
 }
 
 #week-text-label {
+    font-size: 1.3rem;
     margin-bottom: 10px;
     margin-left: -600px;
+    color: whitesmoke;
+    animation: 1000ms ease 0.5s 1 normal forwards running kitpAN;
 }
 
 #chart-wrapper {
@@ -63,11 +144,12 @@ body, html {
     flex-direction: column;
     align-items: center;
 }
+
 #parent-container {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    position: relative; 
+    position: relative;
     padding: 20px;
 }
 
@@ -91,10 +173,11 @@ body, html {
     display: flex;
     padding-right: 4px;
 }
+
 .month-spacer {
-    width: 5px; /* or whatever width you desire for the visual gap */
-    height: 10px; /* same height as week-boxes to align them properly */
-    flex-shrink: 0; /* prevent the spacer from shrinking */
+    width: 5px;
+    height: 10px;
+    flex-shrink: 0;
 }
 
 .decade-wrapper {
@@ -111,15 +194,14 @@ body, html {
 }
 
 .decade-label {
-    writing-mode: vertical-rl; /* Rotate the labels */
-    transform: rotate(180deg); /* Flip the text to the correct direction */
-    align-self: flex-start; /* Align to the top of the container */
-    
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    align-self: flex-start;
 }
 
 .decade-spacer {
-   flex-basis: 100%;
-    height: 10px; 
+    flex-basis: 100%;
+    height: 10px;
 }
 
 .week-box {
@@ -133,7 +215,7 @@ body, html {
 }
 
 .week-box.lived {
-    background-color: #808080;
+    background-color: #f8f8f8;
 }
 
 .week-box.unlived {
@@ -149,9 +231,8 @@ body, html {
     margin: 0 2px;
 }
 
-
 #year-text-label {
-    
+
     position: absolute;
     top: 0;
     transform: translateY(-50%) rotate(180deg);
@@ -162,13 +243,15 @@ body, html {
     white-space: nowrap;
     margin-top: 300px;
     margin-left: -700px;
+    font-size:  1.3rem;
+    color:whitesmoke;
+    animation: 1000ms ease 0.5s 1 normal forwards running kitpAN;
 }
-
-
 
 #add-event-btn:hover {
-    background-color: #e0e0e0;
+    background-color: #04c204;
 }
+
 .tooltip {
     display: none;
     position: absolute;
@@ -180,8 +263,8 @@ body, html {
     line-height: 14px;
     z-index: 1000;
 }
+
 #floating-div {
-    background-color: #ffffff;
     border: 1px solid #eaeaea;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     padding: 20px;
@@ -193,10 +276,12 @@ body, html {
     max-height: 80vh;
     overflow-y: auto;
     z-index: 1000;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px; 
+    padding: 20px;
+    backdrop-filter: blur(10px); 
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
-
-
-
 
 .event-group input[type="text"],
 .event-group input[type="date"] {
@@ -248,27 +333,26 @@ body, html {
 .event-key:hover {
     background-color: #dee2e6;
 }
+
 .remove-event {
     display: inline-block;
     width: 20px;
     height: 20px;
     line-height: 20px;
     text-align: center;
-    margin-left: auto; /* Aligns the button to the right */
+    margin-left: auto;
     font-size: 14px;
     color: #fff;
-    background-color: #dc3545; /* Bootstrap's btn-danger color */
-    border-radius: 50%;
+    background-color: #fa1d33;
     border: none;
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     position: absolute;
     top: 10px;
     right: 10px;
 }
 
 .remove-event:hover {
-    background-color: #c82333; /* Darken color on hover */
+    background-color: #ff2b41;
 }
 
 .compact-event {
@@ -284,19 +368,6 @@ body, html {
     position: relative;
 }
 
-.compact-event .event-dates {
-    margin-left: 5px;
-    font-size: 0.8em;
-    color: #666;
-}
-
-.compact-event .color-indicator {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    margin-right: 5px;
-    border: 1px solid #ddd;
-}
 
 
 .compact-event.highlight {
@@ -306,7 +377,7 @@ body, html {
 .hidden {
     display: none;
 }
-/* Style for the 'Add Life Event' button */
+
 .add-event-btn {
     display: flex;
     align-items: center;
@@ -320,52 +391,48 @@ body, html {
     cursor: pointer;
     font-size: 24px;
     color: #888;
-  }
-  
-  /* Style for the date picker container */
-  .date-picker-container {
+}
+
+.date-picker-container {
     display: flex;
     justify-content: space-between;
     gap: 10px;
-  }
-  
-  /* Style for the date picker inputs */
-  .date-picker {
-    width: auto; /* Adjust the width as needed */
-    padding: 5px; /* Reduce padding for a more compact look */
-    margin: 2px 0; /* Minimize margin */
-    border: 1px solid #ccc; /* Optional: for a cleaner border */
-    border-radius: 4px; /* Rounded corners for a softer look */
-    font-size: 14px; /* Adjust font size for compactness */
 }
-  /* Style for the color picker and submit button container */
-  .color-submit-container {
+
+
+.date-picker {
+    width: auto;
+    padding: 5px;
+    margin: 2px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.color-submit-container {
     display: flex;
     align-items: center;
     gap: 10px;
-  }
-  
-  /* Style for the color picker preview */
-  .color-picker-preview {
+}
+
+.color-picker-preview {
     width: 30px;
     height: 30px;
     border-radius: 15px;
     cursor: pointer;
-  }
-  
-  /* Style for the submit button */
-  .submit-event {
+}
+
+.submit-event {
     padding: 5px 10px;
     background-color: #ffffff;
     color: rgb(0, 0, 0);
     border: grey;
     border-radius: 4px;
     cursor: pointer;
-    
-  }
-  
-  /* Style for the remove button */
-  .remove-event {
+
+}
+
+.remove-event {
     position: absolute;
     top: 0;
     right: 0;
@@ -375,72 +442,85 @@ body, html {
     border-radius: 10px;
     cursor: pointer;
     padding: 2px 5px;
-  }
-  
-  /* General styling for event group */
-  .event-group {
+}
+
+.event-group {
     position: relative;
     background-color: #fff;
     padding: 10px;
     border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin-bottom: 10px;
     display: flex;
     flex-direction: column;
-    gap: 5px; /* Adjust the space between items */
-  }
-  
+    gap: 5px;
+}
+
 .event-name-and-color {
     display: flex;
     align-items: center;
-    gap: 8px; /* Adjust the space between items */
+    gap: 8px;
 }
 
 .event-name-and-color input[type="text"] {
-    flex-grow: 1; /* Allows the text input to fill the space */
+    flex-grow: 1;
 }
 
 .event-name-and-color input[type="color"] {
-    /* Optional styles for the color picker */
-    width: 30px; /* Adjust as needed */
-    height: 30px; /* Adjust as needed */
+    width: 30px;
+    height: 30px;
     border: none;
     cursor: pointer;
 }
+
 .birthdate-section {
     display: flex;
     align-items: center;
-    gap: 10px; /* Space between elements */
-  }
-  
-  #main-content {
+    gap: 10px;
+}
+
+#main-content {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 }
-  #toggle-life-events {
+
+#toggle-life-events {
     padding: 5px 10px;
     background-color: #007bff;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-  }
-  
-  #toggle-life-events:hover {
-    background-color: #0056b3;
-  }
-
-  .event-label-container {
-    /* Styles to visually format the label container */
-    background: #FFF; /* Background color */
-    border: 1px solid #000; /* Border */
-    padding: 2px 5px; /* Padding */
-    border-radius: 4px; /* Rounded corners */
-    white-space: nowrap; /* Ensure the label text does not wrap */
-    /* ... additional styles ... */
 }
+
+#toggle-life-events:hover {
+    background-color: #0056b3;
+}
+
+#toggle-auth {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin-top: 15px;
+    cursor: pointer;
+    display: block;
+}
+
+#toggle-auth:hover {
+    background-color: #0056b3;
+}
+
+.event-label-container {
+    background: #FFF;
+    border: 1px solid #000;
+    padding: 2px 5px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
 #auth-container {
     display: flex;
     flex-direction: column;
@@ -453,19 +533,20 @@ body, html {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
 }
+
 #auth-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 10px;
     background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     /* Other styles to match the design in the image */
 }
 
 #login-section,
 #register-section {
-    display: flex;
+    display: none;
     flex-direction: column;
     align-items: center;
     gap: 10px;
@@ -489,9 +570,31 @@ body, html {
     font-size: 14px;
 }
 
+button {
+    border: none;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 1rem;
+    transition: background-color 0.3s;
+}
+
+#google-sign-in {
+    background-color: #DB4437;
+    color: white;
+}
+
+.email-sign-up {
+    background-color: #4285F4;
+    color: white;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
 #login-button,
-#register-button
- {
+#register-button {
 
     border-radius: 4px;
     border: none;
@@ -499,6 +602,7 @@ body, html {
     background-color: #007bff;
     cursor: pointer;
     font-size: 14px;
+    padding: 10px 15px;
 
 }
 
@@ -510,15 +614,22 @@ body, html {
 
 
 #navbar {
-    width: 100%; /* Stretch to full width */
-    margin: 0; /* Remove any margin if necessary */
-    background-color: #f8f8f8;
+    width: 100%;
+    /* Stretch to full width */
+    margin: 0;
+    /* Remove any margin if necessary */
+    background-color: transparent;
     padding: 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+#user-name {
+    color: white;
+    margin-top: -5px;
+    text-transform: capitalize;
+}
+
 
 #user-info {
     display: flex;
@@ -530,9 +641,12 @@ body, html {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    object-fit: cover; /* This will ensure the image covers the area and is not stretched */
-    border: 2px solid #ddd; /* Optional: adds a border around the avatar */
+    object-fit: cover;
+    /* This will ensure the image covers the area and is not stretched */
+    border: 2px solid #ddd;
+    /* Optional: adds a border around the avatar */
 }
+
 #nav-actions {
     display: flex;
     align-items: center;
@@ -553,23 +667,31 @@ body, html {
 #nav-actions button:hover {
     background-color: #0056b3;
 }
+
 #user-info span {
     margin-left: 10px;
     font-weight: bold;
-    color: #000;
+    color: #ffffff;
 }
+
 #legend-container {
     background-color: transparent;
     position: absolute;
     top: 0;
-    right: -250px; 
-    width: 250px; 
-    margin-top: -25px; 
-    margin-right: 20px; 
+    right: -260px;
+    width: 230px;
+    margin-top: 10px;
+    border: 2px solid white;
+    margin-right: 20px;
+    background: rgba(255, 255, 255, 0.027); /* White background with a little opacity */
+    border-radius: 10px; /* Optional: if you want rounded corners */
+    padding: 20px; /* Optional: for some spacing inside the div */
+    backdrop-filter: blur(10px); /* This creates the frosted glass effect */
 
 }
+
 #legend-container h3 {
-    text-align: Lef;
+    text-align: Left;
     margin-bottom: 20px;
 }
 
@@ -588,26 +710,35 @@ body, html {
 
 .event-name {
     font-size: 14px;
+    color: white;
 }
+
 #wrapper {
     display: flex;
-    justify-content: center; /* Adjust as needed */
-    align-items: start; /* Adjust as needed */
-    width: 100%; /* Adjust as needed */
+    justify-content: center;
+    /* Adjust as needed */
+    align-items: start;
+    /* Adjust as needed */
+    width: 100%;
+    /* Adjust as needed */
 }
 
 #chart-and-labels-container {
     /* Your existing styles, if any */
-    flex-grow: 1; /* Allows it to take up available space */
+    flex-grow: 1;
+    /* Allows it to take up available space */
 }
+
 @media print {
+
     /* Hide everything in the body initially */
     body * {
         visibility: hidden;
     }
 
     /* Only display the print container and its children */
-    #print-container, #print-container * {
+    #print-container,
+    #print-container * {
         visibility: visible;
     }
 
@@ -620,31 +751,38 @@ body, html {
 
     /* Adjust the print container's contents for printing */
     #print-container header h1 {
-        font-size: 18px; /* Adjust the title size for printing */
-        text-align: center; /* Center the title */
-        margin-bottom: 20px; /* Space below the title */
+        font-size: 18px;
+        /* Adjust the title size for printing */
+        text-align: center;
+        /* Center the title */
+        margin-bottom: 20px;
+        /* Space below the title */
     }
 
     #print-container #week-labels-container,
     #print-container #years-labels-container {
-        display: block; /* Ensure these are visible and laid out correctly */
+        display: block;
+        /* Ensure these are visible and laid out correctly */
     }
 
     #print-container #chart-container {
-        max-width: 100%; /* Limit width to prevent overflow */
-        page-break-inside: avoid; /* Prevent breaking the grid across pages */
+        max-width: 100%;
+        /* Limit width to prevent overflow */
+        page-break-inside: avoid;
+        /* Prevent breaking the grid across pages */
     }
 
-    #print-container .week-box, 
+    #print-container .week-box,
     #print-container .year-container {
-        transform: scale(0.8); /* Scale down the boxes to fit better */
-        transform-origin: top left; /* Ensure scaling doesn't offset positioning */
+        transform: scale(0.8);
+        /* Scale down the boxes to fit better */
+        transform-origin: top left;
+        /* Ensure scaling doesn't offset positioning */
     }
 
     #print-container .year-label,
     #print-container .week-label {
-        font-size: 8px; /* Smaller font size for print */
+        font-size: 8px;
+        /* Smaller font size for print */
     }
 }
-
-

@@ -1,13 +1,8 @@
-
-
-
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 
-
 const database = firebase.database();
-
 
 let eventCounter = 0;
 let lifeEvents = [];
@@ -35,8 +30,6 @@ function createYearLabels(totalYears) {
         yearsLabelsContainer.appendChild(yearLabel);
     }
 }
-
-
 
 function createWeekBoxes(container, totalWeeksLived, totalYears) {
     container.innerHTML = '';
@@ -70,7 +63,6 @@ function createWeekBoxes(container, totalWeeksLived, totalYears) {
                 weekBox.classList.add('lived');
             }
 
-            // Highlighting the current week
             if (weeksCounter === currentWeek) {
                 weekBox.classList.add('current-week'); // Add a class for current week styling
             }
@@ -86,15 +78,12 @@ function createWeekBoxes(container, totalWeeksLived, totalYears) {
                     }
                 });
             }
-
             yearContainer.appendChild(weekBox);
             weeksCounter++;
         }
         container.appendChild(yearContainer);
     }
 }
-//make calculate age robust
-
 
 function calculateAge() {
     const inputBirthDate = document.getElementById('birthdate').value;
@@ -120,80 +109,74 @@ function calculateAge() {
     }
 }
 
-$(document).ready(function () {
+function initializeApp() {
+    // Set up any initial states
     updateLegend();
     updateUserName();
-    $("#floating-div").draggable({ containment: "window" }).resizable();
-    $("#birthdate").change(calculateAge);
-    $('#floating-div').hide();
 
-    $('#toggle-life-events').off('click').on('click', function (e) {
-        e.stopPropagation();
-        $('#floating-div').toggle();
-    });
+    // Initialize event handlers for DOM elements
+    document.getElementById('birthdate').addEventListener('change', calculateAge);
 
-    $('#add-event-btn').off('click').on('click', function (e) {
-        e.stopPropagation();
-        eventCounter++;
-        const eventNameId = 'event-name-' + eventCounter;
-        const eventStartId = 'event-start-' + eventCounter;
-        const eventEndId = 'event-end-' + eventCounter;
-        const eventColorId = 'event-color-' + eventCounter;
-
-        const eventGroup = $('<div/>', { class: 'event-group' }).appendTo("#floating-div");
-
-        $('<input/>', { type: 'text', id: eventNameId, placeholder: 'Event Name' }).appendTo(eventGroup);
-        $('<input/>', { type: 'text', class: 'date-picker', id: eventStartId, placeholder: 'From' }).appendTo(eventGroup);
-        $('<input/>', { type: 'text', class: 'date-picker', id: eventEndId, placeholder: 'To' }).appendTo(eventGroup);
-
-        const colorInput = $('<input/>', { type: 'color', id: eventColorId }).appendTo(eventGroup);
-
-        $('#' + eventStartId + ', #' + eventEndId).datepicker({
-            dateFormat: 'yy-mm-dd',
-            changeMonth: true,
-            changeYear: true,
-            yearRange: '1900:' + new Date().getFullYear()
-        });
-
-        $('<button/>', {
-            text: 'Add Event',
-            class: 'submit-event',
-            click: function () { addOrUpdateEvent(eventCounter); }
-        }).appendTo(eventGroup);
-
-        $('<button/>', {
-            text: 'x',
-            class: 'remove-event',
-            click: function (e) {
-                e.stopPropagation();
-                removeEvent('event-' + eventCounter);
-            }
-        }).appendTo(eventGroup);
-
-        colorInput.spectrum({
-            color: "#f00",
-            showInput: true,
-            showInitial: false,
-            preferredFormat: "hex",
-            showPalette: true,
-            palette: [
-                ["#000", "#444", "#666", "#999", "#ccc", "#eee", "#f3f3f3", "#fff"],
-                ["#f00", "#f90", "#ff0", "#0f0", "#0ff", "#00f", "#90f", "#f0f"]
-            ],
-            change: function (color) {
-                $('#' + eventColorId).val(color.toHexString());
-
+    var toggleLifeEventsButton = document.getElementById('toggle-life-events');
+    if (toggleLifeEventsButton) {
+        toggleLifeEventsButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var floatingDiv = document.getElementById('floating-div');
+            if (floatingDiv.style.display === 'none' || !floatingDiv.style.display) {
+                floatingDiv.style.display = 'block';
+            } else {
+                floatingDiv.style.display = 'none';
             }
         });
-        if (firebase.auth().currentUser) {
-            loadLifeEventsFromDatabase(firebase.auth().currentUser.uid);
-        }
-    });
+    }
 
+    var addEventButton = document.getElementById('add-event-btn');
+    if (addEventButton) {
+        addEventButton.addEventListener('click', addEvent);
+    }
+
+    // Set up your week and year labels
     createWeekLabels();
     createYearLabels(100);
-    createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
+
+    // Hide the floating div by default and make it draggable using jQuery UI
+    var floatingDiv = document.getElementById('floating-div');
+    if (floatingDiv) {
+        floatingDiv.style.display = 'none';
+        $(floatingDiv).draggable({ containment: "window" });
+    }
+
+    // If a user is already logged in, adjust the UI accordingly
+    if (auth.currentUser) {
+        onUserLoggedIn(auth.currentUser);
+    } else {
+        handleLoggedOutState();
+    }
+}
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+
+initializeApp();
+
+document.getElementById('login-button').addEventListener('click', loginUser);
+    document.getElementById('register-button').addEventListener('click', registerUser);
+    document.getElementById('logout-button').addEventListener('click', logoutUser);
+    document.getElementById('toggle-auth').addEventListener('click', toggleAuthMode);
+
+    // Check auth state on page load
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            onUserLoggedIn(user);
+        } else {
+            handleLoggedOutState();
+        }
+    });
 });
+
+
+
 
 function addOrUpdateEvent(counter) {
     const name = $('#event-name-' + counter).val();
@@ -201,14 +184,13 @@ function addOrUpdateEvent(counter) {
     const endStr = $('#event-end-' + counter).val();
     const color = $('#event-color-' + counter).val();
 
-    // Convert strings to Date objects
     const start = new Date(startStr);
     const end = new Date(endStr);
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
         console.error('Invalid event date:', { startStr, endStr });
-        alert('Invalid event dates. Please enter valid dates.'); // Notify user
-        return; // Exit the function if dates are invalid
+        alert('Invalid event dates. Please enter valid dates.'); 
+        return; 
     }
     console.log('Start Date:', start.toISOString()); // Debugging
     console.log('End Date:', end.toISOString());   // Debugging
@@ -324,15 +306,6 @@ function formatDate(date) {
 }
 
 function createEventLabels(container, lifeEvents, birthDate) {
-    const svg = d3.select(container)
-        .append("svg")
-        .attr("width", "100%")
-        .attr("height", "100%")
-        .style("position", "absolute")
-        .style("top", 0)
-        .style("left", 0);
-
-    const lineGenerator = d3.line();
 
     lifeEvents.forEach(event => {
         const eventStartWeek = Math.floor((event.start.getTime() - birthDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
@@ -367,16 +340,37 @@ function createEventLabels(container, lifeEvents, birthDate) {
 
 createEventLabels(document.getElementById('chart-container'), lifeEvents, birthDate);
 
-function registerUser(email, password) {
-    auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            // Registration successful
-            console.log('User registered:', userCredential.user);
-            switchToLoggedInState(userCredential.user);
-        })
-        .catch((error) => {
-            console.error('Registration failed:', error.message);
-        });
+function toggleAuthMode() {
+    const loginSection = document.getElementById('login-section');
+    const registerSection = document.getElementById('register-section');
+    const toggleButton = document.getElementById('toggle-auth');
+
+    if (loginSection.style.display === 'none') {
+        loginSection.style.display = 'block';
+        registerSection.style.display = 'none';
+        toggleButton.textContent = 'Register';
+    } else {
+        loginSection.style.display = 'none';
+        registerSection.style.display = 'block';
+        toggleButton.textContent = 'Login';
+    }
+}
+
+function registerUser() {
+    const email = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
+    if (email && password) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                console.log('User registered:', userCredential.user);
+                switchToLoggedInState(userCredential.user);
+            })
+            .catch((error) => {
+                console.error('Registration failed:', error.message);
+            });
+    } else {
+        console.error('Email or password is missing');
+    }
 }
 
 function loginUser() {
@@ -402,78 +396,140 @@ function loginUser() {
 function logoutUser() {
     auth.signOut().then(() => {
         console.log('User logged out');
-        switchToLoggedOutState();
+        handleLoggedOutState();
     }).catch((error) => {
         console.error('Logout failed:', error.message);
     });
+}
+
+function handleLoggedOutState() {
+    // Elements to hide when logged out
+    const mainContent = document.getElementById('main-content');
+    const navbar = document.getElementById('navbar');
+
+    if (mainContent) mainContent.style.display = 'none';
+    if (navbar) navbar.style.display = 'none';
+
+    // Clear user info
+    const navbarUserInfo = document.getElementById('user-info');
+    if (navbarUserInfo) navbarUserInfo.innerHTML = '';
+
+    // Elements to show when logged out
+    const authContainer = document.getElementById('auth-container');
+    const loginSection = document.getElementById('login-section');
+    const registerSection = document.getElementById('register-section');
+    const toggleAuth = document.getElementById('toggle-auth');
+    const logoutButton = document.getElementById('logout-button');
+    const loginContainer = document.getElementById('login-container');
+
+    if (loginContainer) loginContainer.style.display = 'flex';
+    if (authContainer) authContainer.style.display = 'block';
+    if (loginSection) loginSection.style.display = 'block'; // Ensure login section is visible
+    if (registerSection) registerSection.style.display = 'none'; // Keep register section hidden initially
+    if (toggleAuth) toggleAuth.textContent = 'Register'; 
+    if (toggleAuth) toggleAuth.style.display = 'block'; 
+    if (logoutButton) logoutButton.style.display = 'none';
+
+    // Add event listener for toggleAuth button
+    if (toggleAuth) {
+        toggleAuth.removeEventListener('click', toggleAuthHandler);
+        toggleAuth.addEventListener('click', function() {
+            if (loginSection.style.display === 'block') {
+                loginSection.style.display = 'none';
+                registerSection.style.display = 'block';
+                toggleAuth.textContent = 'Login';
+            } else {
+                loginSection.style.display = 'block';
+                registerSection.style.display = 'none';
+                toggleAuth.textContent = 'Register';
+            }
+        });
+    }
+
+    // Reset life events and UI elements related to user data
+    lifeEvents = [];
     updateLegend();
     updateUserName();
 }
 
-// Listener for authentication state changes
 auth.onAuthStateChanged((user) => {
     if (user) {
-        console.log('Logged in user email:', user.email);
-        loadBirthDateFromDatabase(user.uid); // Load birth date
-        loadLifeEventsFromDatabase(user.uid); // Load life events
-
+        onUserLoggedIn(user);
+        loadBirthDateFromDatabase(user.uid); 
+        loadLifeEventsFromDatabase(user.uid);
         switchToLoggedInState(user);
     } else {
-        console.log('User is logged out');
-        switchToLoggedOutState();
-        lifeEvents = [];
-        updateLegend();
+        handleLoggedOutState();
     }
 });
 
 function switchToLoggedInState(user) {
     $('#login-container').hide();
     $('#main-content').show();
-    $('#auth-header').show();
+    $('#auth-header').hide();
     $('#navbar').show();
     // Populate auth-header with user info and logout button
 }
 
-function switchToLoggedOutState() {
-    $('#login-container').show();
-    $('#main-content').hide();
-    $('#auth-header').hide();
-    $('#navbar').hide();
+
+
+function updateUIForAuthState(isLoggedIn) {
+    // Common UI elements
+    const mainContent = document.getElementById('main-content');
+    const authContainer = document.getElementById('auth-container');
+    const logoutButton = document.getElementById('logout-button');
+    const toggleAuthButton = document.getElementById('toggle-auth');
+    const registerSection = document.getElementById('register-section');
+
+    // Show or hide elements based on whether the user is logged in
+    if (isLoggedIn) {
+        mainContent.style.display = 'block';
+        authContainer.style.display = 'none';
+        logoutButton.style.display = 'block';
+        toggleAuthButton.style.display = 'none';
+        registerSection.style.display = 'none';
+    } else {
+        mainContent.style.display = 'none';
+        authContainer.style.display = 'block';
+        logoutButton.style.display = 'none';
+        toggleAuthButton.style.display = 'block';
+        registerSection.style.display = 'block';
+    }
 }
+
+
 
 function onUserLoggedIn(user) {
+    // Safe checks for DOM elements before manipulating
+    // const mainContent = document.getElementById('main-content');
+    // if (mainContent) mainContent.style.display = 'block';
+
+    const authContainer = document.getElementById('auth-container');
+    if (authContainer) authContainer.style.display = 'none';
+
+    const logoutButton = document.getElementById('logout-button');
+    if (logoutButton) logoutButton.style.display = 'block';
+
+    const navbar = document.getElementById('navbar');
+    if (navbar) navbar.style.display = 'flex'; 
+
+    const toggleAuthButton = document.getElementById('toggle-auth');
+    if (toggleAuthButton) toggleAuthButton.style.display = 'none';
+
+    const registerSection = document.getElementById('register-section');
+    if (registerSection) registerSection.style.display = 'none';
+
+    // Load data from Firebase
     loadLifeEventsFromDatabase(user.uid);
     loadBirthDateFromDatabase(user.uid);
-    // Display the user's email in the navigation bar
-    const userEmailDisplay = document.getElementById('user-email');
-    if (userEmailDisplay) {
-        userEmailDisplay.textContent = user.email; // Display the user's email
-    }
-    document.getElementById('auth-container').style.display = 'none';
-    document.getElementById('register-section').style.display = 'none';
-    document.getElementById('logout-button').style.display = 'block';
- 
 
-    // Show the main content
-    document.getElementById('main-content').style.display = 'block';
+    // Update UI
     updateLegend();
     updateUserName();
 }
-function onUserLoggedOut() {
-    // Clear the navigation bar user info and hide the main content
-    const navbarUserInfo = document.getElementById('user-info');
-    if (navbarUserInfo) {
-        navbarUserInfo.innerHTML = '';
-    }
 
-    document.getElementById('auth-container').style.display = 'block';
-    document.getElementById('main-content').style.display = 'none';
-    document.getElementById('logout-button').style.display = 'none'; // Hide the logout button
 
-    updateLegend();
-    updateUserName();
-}
-// Event listeners for login, register, and logout buttons
+
 $('#login-button').click(() => {
     const email = $('#login-email').val();
     const password = $('#login-password').val();
@@ -491,10 +547,6 @@ $('#register-button').click(() => {
 });
 
 $('#logout-button').click(logoutUser);
-
-
-
-
 
 function saveLifeEventsToDatabase(userId, lifeEvents) {
     database.ref('users/' + userId + '/lifeEvents').set(lifeEvents);
@@ -544,7 +596,6 @@ function loadBirthDateFromDatabase(userId) {
             calculateAge();
         }
     });
-
 }
 function addEvent() {
     const eventNameId = 'event-name-' + eventCounter;
