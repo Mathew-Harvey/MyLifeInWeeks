@@ -13,12 +13,7 @@
 
 <body>
 
-    <div id="account-menu" class="account-menu" style="display: none;">
-        <a href="#">Account</a>
-        <a href="#">Contact Support</a>
-        <hr>
-        <a href="#" id="logout-link">Logout</a>
-    </div>
+
     <!-- Navigation Bar -->
     <nav id="new-navbar">
         <div id="logo" style="font-size: 24px; font-weight: bold;">
@@ -27,11 +22,23 @@
             </a>
         </div>
         <div id="nav-links">
+
             <a href="#" style="margin-right: 20px; text-decoration: none; color: #ffffff;">Our why</a>
-            <a href="#" style="margin-right: 20px; text-decoration: none; color: #ffffff;">About us</a>
+            <a href="#" style="margin-right: 20px; text-decoration: none; color: #ffffff;">About</a>
             <a href="#" id="signin-link" onclick="showLogin()" style="text-decoration: none; color: #ffffff;">Sign
                 in</a>
-            <img src="./AccountProfile.png" id="accountImg" alt="my account">
+
+            <div id="account-container" style="display: flex; align-items: center; position: relative;">
+                <img src="./AccountProfile.png" id="accountImg" alt="my account"
+                    style="cursor: pointer; padding: 10px;">
+                <div id="account-menu" class="account-menu">
+                    <a href="#" id="accountPage" style="display: block; margin-bottom: 10px;">Account</a>
+                    <a href="#" id="" onclick="downloadImage()" display: block; margin-bottom: 10px;>Download Life</a>
+                    <a href="#" style="display: block; margin-bottom: 10px;">Contact Support</a>
+                    <hr>
+                    <a href="#" id="logout-link" onclick="logoutUser()">Logout</a>
+                </div>
+            </div>
         </div>
     </nav>
 

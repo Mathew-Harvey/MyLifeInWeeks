@@ -119,7 +119,7 @@ function initializeApp() {
 
     var toggleLifeEventsButton = document.getElementById('toggle-life-events');
     if (toggleLifeEventsButton) {
-        toggleLifeEventsButton.addEventListener('click', function(e) {
+        toggleLifeEventsButton.addEventListener('click', function (e) {
             e.stopPropagation();
             var floatingDiv = document.getElementById('floating-div');
             if (floatingDiv.style.display === 'none' || !floatingDiv.style.display) {
@@ -154,19 +154,17 @@ function initializeApp() {
     }
 }
 
+document.addEventListener('DOMContentLoaded', function () {
 
+    initializeApp();
 
-document.addEventListener('DOMContentLoaded', function() {
-
-initializeApp();
-
-document.getElementById('login-button').addEventListener('click', loginUser);
+    document.getElementById('login-button').addEventListener('click', loginUser);
     document.getElementById('register-button').addEventListener('click', registerUser);
     document.getElementById('logout-button').addEventListener('click', logoutUser);
     document.getElementById('toggle-auth').addEventListener('click', toggleAuthMode);
 
     // Check auth state on page load
-    firebase.auth().onAuthStateChanged(function(user) {
+    firebase.auth().onAuthStateChanged(function (user) {
         if (user) {
             onUserLoggedIn(user);
         } else {
@@ -189,8 +187,8 @@ function addOrUpdateEvent(counter) {
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
         console.error('Invalid event date:', { startStr, endStr });
-        alert('Invalid event dates. Please enter valid dates.'); 
-        return; 
+        alert('Invalid event dates. Please enter valid dates.');
+        return;
     }
     console.log('Start Date:', start.toISOString()); // Debugging
     console.log('End Date:', end.toISOString());   // Debugging
@@ -228,7 +226,7 @@ function addOrUpdateEvent(counter) {
         eventCounter++;
     }
     updateFloatingDivWithEvents();
- 
+
 }
 
 function isValidDate(d) {
@@ -263,18 +261,18 @@ function createCompactEventView(event, counter) {
     return compactView;
 }
 
-function toggleEventView(counter) {
-    const detailView = $('#event-details-' + counter);
-    const compactView = $('#compact-event-' + counter);
+// function toggleEventView(counter) {
+//     const detailView = $('#event-details-' + counter);
+//     const compactView = $('#compact-event-' + counter);
 
-    if (detailView.is(':visible')) {
-        detailView.hide();
-        compactView.show();
-    } else {
-        compactView.hide();
-        detailView.show();
-    }
-}
+//     if (detailView.is(':visible')) {
+//         detailView.hide();
+//         compactView.show();
+//     } else {
+//         compactView.hide();
+//         detailView.show();
+//     }
+// }
 
 function removeEvent(eventId) {
     // Remove event from the lifeEvents array
@@ -284,7 +282,7 @@ function removeEvent(eventId) {
     createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
     updateLegend();
     updateFloatingDivWithEvents();
-  
+
 
     // Save updated life events to database
     if (auth.currentUser) {
@@ -402,21 +400,37 @@ function logoutUser() {
     });
 }
 
+//account menu
 
+document.getElementById('accountImg').addEventListener('click', function() {
+    console.log('clicked');
+    var accountMenu = document.getElementById('account-menu');
+    accountMenu.style.display = accountMenu.style.display === 'block' ? 'none' : 'block';
+});
+
+function clearUserData() {
+    // Clear the birthdate input
+    const birthdateInput = document.getElementById('birthdate');
+    if (birthdateInput) {
+        birthdateInput.value = '';
+    }
+
+    // Clear the life events data
+    lifeEvents = [];
+    const chartContainer = document.getElementById('chart-container');
+    if (chartContainer) {
+        chartContainer.innerHTML = '';
+    }
+    
+    // Clear the events legend
+    updateLegend();
+}
 
 function handleLoggedOutState() {
-    // Elements to hide when logged out
+
     const mainContent = document.getElementById('main-content');
     const navbar = document.getElementById('navbar');
-
-    if (mainContent) mainContent.style.display = 'none';
-    if (navbar) navbar.style.display = 'none';
-
-    // Clear user info
     const navbarUserInfo = document.getElementById('user-info');
-    if (navbarUserInfo) navbarUserInfo.innerHTML = '';
-
-    // Elements to show when logged out
     const authContainer = document.getElementById('auth-container');
     const loginSection = document.getElementById('login-section');
     const registerSection = document.getElementById('register-section');
@@ -425,43 +439,32 @@ function handleLoggedOutState() {
     const loginContainer = document.getElementById('login-container');
     const signInLink = document.getElementById('signin-link');
     const accountImg = document.getElementById('accountImg');
+    const accountMenu = document.getElementById('account-menu');
 
+    if (navbarUserInfo) navbarUserInfo.innerHTML = '';
     if (loginContainer) loginContainer.style.display = 'flex';
     if (authContainer) authContainer.style.display = 'block';
-    if (loginSection) loginSection.style.display = 'block'; // Ensure login section is visible
-    if (registerSection) registerSection.style.display = 'none'; // Keep register section hidden initially
-    if (toggleAuth) toggleAuth.textContent = 'Register'; 
-    if (toggleAuth) toggleAuth.style.display = 'block'; 
+    if (loginSection) loginSection.style.display = 'block';
+    if (registerSection) registerSection.style.display = 'none';
+    if (toggleAuth) toggleAuth.textContent = 'Register';
+    if (toggleAuth) toggleAuth.style.display = 'block';
     if (logoutButton) logoutButton.style.display = 'none';
-    if(signInLink) signInLink.style.display = 'none';
-    if(accountImg) accountImg.style.display = 'block';
+    if (signInLink) signInLink.style.display = 'none';
+    if (accountImg) accountImg.style.display = 'block';
+    if (mainContent) mainContent.style.display = 'none';
+    if (navbar) navbar.style.display = 'none';
+    if (accountMenu) accountMenu.style.display = 'none';
 
-    // Add event listener for toggleAuth button
-    // if (toggleAuth) {
-    //     toggleAuth.removeEventListener('click', toggleAuthHandler);
-    //     toggleAuth.addEventListener('click', function() {
-    //         if (loginSection.style.display === 'block') {
-    //             loginSection.style.display = 'none';
-    //             registerSection.style.display = 'block';
-    //             toggleAuth.textContent = 'Login';
-    //         } else {
-    //             loginSection.style.display = 'block';
-    //             registerSection.style.display = 'none';
-    //             toggleAuth.textContent = 'Register';
-    //         }
-    //     });
-    // }
-
-    // Reset life events and UI elements related to user data
     lifeEvents = [];
     updateLegend();
     updateUserName();
+    clearUserData();
 }
 
 auth.onAuthStateChanged((user) => {
     if (user) {
         onUserLoggedIn(user);
-        loadBirthDateFromDatabase(user.uid); 
+        loadBirthDateFromDatabase(user.uid);
         loadLifeEventsFromDatabase(user.uid);
         switchToLoggedInState(user);
     } else {
@@ -517,7 +520,7 @@ function onUserLoggedIn(user) {
     if (logoutButton) logoutButton.style.display = 'block';
 
     const navbar = document.getElementById('navbar');
-    if (navbar) navbar.style.display = 'flex'; 
+    if (navbar) navbar.style.display = 'flex';
 
     const toggleAuthButton = document.getElementById('toggle-auth');
     if (toggleAuthButton) toggleAuthButton.style.display = 'none';
@@ -531,9 +534,12 @@ function onUserLoggedIn(user) {
     const accountImg = document.getElementById('accountImg');
     if (accountImg) registerSection.style.display = 'block';
 
+    const accountMenu = document.getElementById('account-menu');
+    if (accountMenu) registerSection.style.display = 'none';
 
- 
 
+
+    clearUserData()
     // Load data from Firebase
     loadLifeEventsFromDatabase(user.uid);
     loadBirthDateFromDatabase(user.uid);
@@ -632,15 +638,15 @@ function addEvent() {
 
     // Add buttons
     $('<button/>', { text: 'Save Event', class: 'submit-event', click: function () { addOrUpdateEvent(eventCounter); } }).appendTo(eventGroup);
-// Inside addEvent function
-$('<button/>', {
-    text: 'x',
-    class: 'remove-event',
-    click: function (e) {
-        e.stopPropagation();
-        removeEvent('event-' + eventCounter);
-    }
-}).appendTo(eventGroup);
+    // Inside addEvent function
+    $('<button/>', {
+        text: 'x',
+        class: 'remove-event',
+        click: function (e) {
+            e.stopPropagation();
+            removeEvent('event-' + eventCounter);
+        }
+    }).appendTo(eventGroup);
     // Setup date picker
     $('#' + eventStartId + ', #' + eventEndId).datepicker({
         dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true, yearRange: '1900:' + new Date().getFullYear()
@@ -649,7 +655,7 @@ $('<button/>', {
 
 
 function updateFloatingDivWithEvents() {
-    $('#floating-div').empty(); 
+    $('#floating-div').empty();
     lifeEvents.forEach(event => {
         const eventGroup = $('<div/>', { class: 'event-group', id: event.id }).appendTo("#floating-div");
 
@@ -759,34 +765,6 @@ function printContent() {
     window.print();
 }
 
-function printGrid() {
-    const mainContent = document.getElementById("main-content");
-
-    html2canvas(mainContent, { scale: 2, logging: true, scrollY: -window.scrollY }).then(canvas => {
-        const image = canvas.toDataURL("image/png");
-        const windowContent = '<!DOCTYPE html>' +
-            '<html>' +
-            '<head><title>Print</title></head>' +
-            '<body style="margin: 0; padding: 0; box-sizing: border-box; font-family: Arial;">' +
-            '<div style="text-align: center; margin: auto; page-break-inside: avoid;">' +
-            '<img src="' + image + '" style="width: 100%; max-width: 800px; max-height: 1120px; height: auto;">' +
-            '</div>' +
-            '</body>' +
-            '</html>';
-        const printWin = window.open('', '', 'width=840,height=1189'); // A4 size: 8.27 × 11.69 inches
-        printWin.document.open();
-        printWin.document.write(windowContent);
-        printWin.document.close();
-        printWin.focus();
-        setTimeout(function () {
-            printWin.print();
-            printWin.close();
-        }, 1000);
-    }).catch(error => {
-        console.error('Error generating print image:', error);
-    });
-}
-
 const clarityScaleFactor = window.devicePixelRatio || 4;
 
 function downloadImage() {
@@ -810,7 +788,7 @@ function downloadImage() {
     }).catch(error => {
         content.style.width = originalWidth;
         console.error('Error generating image:', error);
-        
+
     });
     yearTextLabel.style.transform = originalTransform;
 }

@@ -18,16 +18,44 @@ html {
 
 }
 
-.account-menu {
-    position: absolute;
-    top: 100%; /* Adjust based on actual navbar height */
-    right: 0;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
+#account-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
     padding: 10px;
-    width: 200px; /* Adjust as needed */
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.account-menu.account-menu {
+    background-color: #160285;
+}
+.account-menu {
+    display: none;
+    position: absolute;
+    top: 100%; /* Align the top of the menu with the bottom of the button */
+    right: 0; /* Align the menu to the right side of the account-container */
+    background-color: #210cA0;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1000;
+}
+#accountImg:hover + #account-menu {
+    display: block; /* Show the menu on hover */
+}
+
+#accountImg {
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%; /* Makes the clickable area circular */
+    transition: background-color 0.2s;
+    
+}
+
+#accountImg:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* Change to desired hover color */
 }
 
 .account-menu a {
@@ -37,8 +65,12 @@ html {
     text-decoration: none;
 }
 
+#account-menu hr {
+    margin: 0;
+    border-color: rgba(0, 0, 0, 0.1);
+}
 .account-menu a:hover {
-    background-color: #f7f7f7;
+    background-color: #0594f3;
 }
 
 .account-menu hr {
@@ -104,6 +136,7 @@ p {
     top: 0;
     left: 0;
     z-index: 1000;
+    padding: 20px;
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
