@@ -12,56 +12,63 @@
 </head>
 
 <body>
-   
 
-        <!-- Navigation Bar -->
-        <nav id="new-navbar"
-            >
-            <div id="logo" style="font-size: 24px; font-weight: bold;">
-                <a href="#" style="text-decoration: none; color: #ffffff;">life.is.short</a>
-            </div>
-            <div id="nav-links">
-                <a href="#" style="margin-right: 20px; text-decoration: none; color: #ffffff;">Our why</a>
-                <a href="#" style="margin-right: 20px; text-decoration: none; color: #ffffff;">About us</a>
-                <a href="#" id="signin-link" onclick="showLogin()" style="text-decoration: none; color: #ffffff;">Sign
-                    in</a>
-            </div>
-        </nav>
+    <div id="account-menu" class="account-menu" style="display: none;">
+        <a href="#">Account</a>
+        <a href="#">Contact Support</a>
+        <hr>
+        <a href="#" id="logout-link">Logout</a>
+    </div>
+    <!-- Navigation Bar -->
+    <nav id="new-navbar">
+        <div id="logo" style="font-size: 24px; font-weight: bold;">
+            <a>
+                <img src="./MyLifeInWeeksLogo.png" id="logoImg" alt="Life is Short Logo">
+            </a>
+        </div>
+        <div id="nav-links">
+            <a href="#" style="margin-right: 20px; text-decoration: none; color: #ffffff;">Our why</a>
+            <a href="#" style="margin-right: 20px; text-decoration: none; color: #ffffff;">About us</a>
+            <a href="#" id="signin-link" onclick="showLogin()" style="text-decoration: none; color: #ffffff;">Sign
+                in</a>
+            <img src="./AccountProfile.png" id="accountImg" alt="my account">
+        </div>
+    </nav>
 
-        <nav id="navbar">
-            <div id="nav-actions">
-                <button onclick="downloadImage()">Download My Life</button>
-                <button id="logout-button" onclick="logoutUser()">Logout</button>
-            </div>
-        </nav>
-        <button id="toggle-auth" onclick="toggleAuthMode()">Register</button>
-        <div id="login-container"
-            style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+    <nav id="navbar">
+        <div id="nav-actions">
+            <button onclick="downloadImage()">Download My Life</button>
+            <button id="logout-button" onclick="logoutUser()">Logout</button>
+        </div>
+    </nav>
+    <button id="toggle-auth" onclick="toggleAuthMode()">Register</button>
+    <div id="login-container"
+        style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
 
-            <div id="image-placeholder" style="height: 200px; background-color: #ccc; margin-bottom: 30px;">Image
-                Placeholder</div>
-            <!-- Login Section -->
-            <div id="login-section" style="width: 300px;">
-                <h2>Login</h2>
-                <input type="email" id="login-email" placeholder="Email" style="margin-bottom: 10px;">
-                <input type="password" id="login-password" placeholder="Password" style="margin-bottom: 10px;">
-                <button id="login-button" onclick="loginUser()">Login</button>
+        <div id="image-placeholder" style="height: 200px; background-color: #ccc; margin-bottom: 30px;">Image
+            Placeholder</div>
+        <!-- Login Section -->
+        <div id="login-section" style="width: 300px;">
+            <h2>Login</h2>
+            <input type="email" id="login-email" placeholder="Email" style="margin-bottom: 10px;">
+            <input type="password" id="login-password" placeholder="Password" style="margin-bottom: 10px;">
+            <button id="login-button" onclick="loginUser()">Login</button>
 
-                <h1>Bringing life into perspective</h1>
-                <p>Life is short, What's your next move?</p>
+            <h1>Bringing life into perspective</h1>
+            <p>Life is short, What's your next move?</p>
 
-                <!-- SSO for Google and Sign up with email -->
-                <button id="google-sign-in" onclick="signInWithGoogle()"
-                    style="background-color: #4285F4; color: white; border: none; padding: 10px 15px; margin-top: 20px; cursor: pointer;">
-                    Sign in with Google
-                </button>
-                <button class="email-sign-up" id="toggle-auth" onclick="toggleAuthMode()"
-                    style="background-color: #6c63ff; color: white; border: none; padding: 10px 15px; margin-top: 10px; cursor: pointer;">
-                    Sign up with email
-                </button>
-            </div>
-        
-        
+            <!-- SSO for Google and Sign up with email -->
+            <button id="google-sign-in" onclick="signInWithGoogle()"
+                style="background-color: #4285F4; color: white; border: none; padding: 10px 15px; margin-top: 20px; cursor: pointer;">
+                Sign in with Google
+            </button>
+            <button class="email-sign-up" id="toggle-auth" onclick="toggleAuthMode()"
+                style="background-color: #6c63ff; color: white; border: none; padding: 10px 15px; margin-top: 10px; cursor: pointer;">
+                Sign up with email
+            </button>
+        </div>
+
+
         <!-- Registration Section -->
         <div id="register-section" style="width: 300px; ">
             <h2>Register</h2>

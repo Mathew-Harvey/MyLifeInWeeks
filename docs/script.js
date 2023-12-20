@@ -402,6 +402,8 @@ function logoutUser() {
     });
 }
 
+
+
 function handleLoggedOutState() {
     // Elements to hide when logged out
     const mainContent = document.getElementById('main-content');
@@ -421,6 +423,8 @@ function handleLoggedOutState() {
     const toggleAuth = document.getElementById('toggle-auth');
     const logoutButton = document.getElementById('logout-button');
     const loginContainer = document.getElementById('login-container');
+    const signInLink = document.getElementById('signin-link');
+    const accountImg = document.getElementById('accountImg');
 
     if (loginContainer) loginContainer.style.display = 'flex';
     if (authContainer) authContainer.style.display = 'block';
@@ -429,22 +433,24 @@ function handleLoggedOutState() {
     if (toggleAuth) toggleAuth.textContent = 'Register'; 
     if (toggleAuth) toggleAuth.style.display = 'block'; 
     if (logoutButton) logoutButton.style.display = 'none';
+    if(signInLink) signInLink.style.display = 'none';
+    if(accountImg) accountImg.style.display = 'block';
 
     // Add event listener for toggleAuth button
-    if (toggleAuth) {
-        toggleAuth.removeEventListener('click', toggleAuthHandler);
-        toggleAuth.addEventListener('click', function() {
-            if (loginSection.style.display === 'block') {
-                loginSection.style.display = 'none';
-                registerSection.style.display = 'block';
-                toggleAuth.textContent = 'Login';
-            } else {
-                loginSection.style.display = 'block';
-                registerSection.style.display = 'none';
-                toggleAuth.textContent = 'Register';
-            }
-        });
-    }
+    // if (toggleAuth) {
+    //     toggleAuth.removeEventListener('click', toggleAuthHandler);
+    //     toggleAuth.addEventListener('click', function() {
+    //         if (loginSection.style.display === 'block') {
+    //             loginSection.style.display = 'none';
+    //             registerSection.style.display = 'block';
+    //             toggleAuth.textContent = 'Login';
+    //         } else {
+    //             loginSection.style.display = 'block';
+    //             registerSection.style.display = 'none';
+    //             toggleAuth.textContent = 'Register';
+    //         }
+    //     });
+    // }
 
     // Reset life events and UI elements related to user data
     lifeEvents = [];
@@ -518,6 +524,15 @@ function onUserLoggedIn(user) {
 
     const registerSection = document.getElementById('register-section');
     if (registerSection) registerSection.style.display = 'none';
+
+    const signInLink = document.getElementById('signin-link');
+    if (signInLink) registerSection.style.display = 'none';
+
+    const accountImg = document.getElementById('accountImg');
+    if (accountImg) registerSection.style.display = 'block';
+
+
+ 
 
     // Load data from Firebase
     loadLifeEventsFromDatabase(user.uid);
