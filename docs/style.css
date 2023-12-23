@@ -73,8 +73,8 @@ html {
 .account-menu {
     display: none;
     position: absolute;
-    top: 100%; /* Align the top of the menu with the bottom of the button */
-    right: 0; /* Align the menu to the right side of the account-container */
+    top: 100%;
+    right: 0; 
     background-color: #4e4691; 
     padding: 10px;
     border-radius: 5px;
@@ -118,11 +118,12 @@ html {
     background-color: #ddd;
     margin: 10px 0;
 }
+
 #landing-page {
+    
     width: 90%;
     max-width: 1000px;
     height: auto;
-    margin-top: 400px;
 
 }
 #landingPage {
@@ -134,10 +135,7 @@ html {
     height: 100px;
 }
 
-#acctounImg {
-    height: 200px;
-    padding-left: 500px;
-}
+
 
 /* Update the input fields to match the design */
 input[type="email"], input[type="password"], input[type="date"] {
@@ -186,7 +184,6 @@ h1 {
 
 p {
     color: white;
-
 }
 
 #new-navbar {
@@ -378,7 +375,6 @@ p {
 }
 
 #year-text-label {
-
     position: absolute;
     top: 0;
     transform: translateY(-50%) rotate(180deg);

@@ -147,7 +147,30 @@ function calculateAge() {
 }
 
 
+function createEmptyWeekBoxes(container, totalYears) {
+    container.innerHTML = '';
+    const weeksPerYear = 52;
+    for (let year = 0; year < totalYears; year++) {
+        const yearContainer = document.createElement('div');
+        yearContainer.classList.add('year-container');
+        for (let week = 0; week < weeksPerYear; week++) {
+            const weekBox = document.createElement('div');
+            weekBox.classList.add('week-box', 'unlived'); // Default state is 'unlived'
+            yearContainer.appendChild(weekBox);
+        }
+        container.appendChild(yearContainer);
+    }
+}
 
+function initializeApp() {
+    // Other initializations...
+
+    // Create an empty grid initially
+    const chartContainer = document.getElementById('chart-container');
+    createEmptyWeekBoxes(chartContainer, 90); // 90 years as an example
+
+    // Other initializations...
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     toggleAuthMode();
@@ -232,58 +255,13 @@ function isValidDate(d) {
     return d instanceof Date && !isNaN(d);
 }
 
-function createCompactEventView(event, counter) {
-    const compactView = $('<div/>', {
-        class: 'compact-event',
-        click: () => toggleEventView(counter),
-        mouseenter: function () { $(this).addClass('highlight'); },
-        mouseleave: function () { $(this).removeClass('highlight'); }
-    });
-
-    compactView.append($('<span/>', { text: event.name + ': ' }));
-    compactView.append($('<span/>', { text: formatDate(event.start) + ' - ' + formatDate(event.end), class: 'event-dates' }));
-
-    compactView.append($('<span/>', {
-        class: 'color-indicator',
-        css: { 'background-color': event.color }
-    }));
-
-    compactView.append($('<button/>', {
-        text: 'x',
-        class: 'remove-event',
-        click: function (e) {
-            e.stopPropagation();
-            removeEvent(counter);
-        }
-    }));
-
-    return compactView;
-}
-
-// function toggleEventView(counter) {
-//     const detailView = $('#event-details-' + counter);
-//     const compactView = $('#compact-event-' + counter);
-
-//     if (detailView.is(':visible')) {
-//         detailView.hide();
-//         compactView.show();
-//     } else {
-//         compactView.hide();
-//         detailView.show();
-//     }
-// }
 
 function removeEvent(eventId) {
-    // Remove event from the lifeEvents array
     lifeEvents = lifeEvents.filter(event => event.id !== eventId);
-
-    // Update the grid, legend, and floating div
     createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
     updateLegend();
     updateFloatingDivWithEvents();
 
-
-    // Save updated life events to database
     if (auth.currentUser) {
         const firebaseLifeEvents = lifeEvents.map(event => ({
             ...event,
@@ -295,8 +273,6 @@ function removeEvent(eventId) {
 
     console.log("Life events after removal:", lifeEvents);
 }
-
-
 
 function formatDate(date) {
     return date.toISOString().slice(0, 10);
@@ -338,7 +314,6 @@ function createEventLabels(container, lifeEvents, birthDate) {
 createEventLabels(document.getElementById('chart-container'), lifeEvents, birthDate);
 
 function showError(message) {
-    // Create the error message container if it doesn't exist
     let errorContainer = document.getElementById('error-message');
     if (!errorContainer) {
         errorContainer = document.createElement('div');
@@ -356,11 +331,9 @@ function showError(message) {
         document.body.appendChild(errorContainer);
     }
     
-    // Show the error message
     errorContainer.textContent = message;
     errorContainer.style.display = 'block';
     
-    // Hide the message after 3 seconds
     setTimeout(() => {
         errorContainer.style.display = 'none';
     }, 3000);
@@ -407,6 +380,12 @@ function registerUser() {
 function loginUser() {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
+    const landingPageDiv = document.getElementById('landing-page');
+
+    if (landingPageDiv) landingPageDiv.style.display = 'none';
+    
+
+
     if (email && password) {
         auth.signInWithEmailAndPassword(email, password)
             .then((userCredential) => {
@@ -419,12 +398,10 @@ function loginUser() {
     } else {
         console.error('Email or password is missing');
     }
+    createEmptyWeekBoxes(chartContainer, 90)
     updateLegend();
     updateUserName();
-    const landingPageDiv = document.getElementById('landing-page');
-    if (landingPageDiv) {
-        landingPageDiv.style.display = 'none';
-    }
+    
 }
 
 
@@ -437,9 +414,6 @@ function logoutUser() {
     });
 }
 
-
-//account menu
-
 document.getElementById('accountImg').addEventListener('click', function() {
     console.log('clicked');
     var accountMenu = document.getElementById('account-menu');
@@ -447,20 +421,17 @@ document.getElementById('accountImg').addEventListener('click', function() {
 });
 
 function clearUserData() {
-    // Clear the birthdate input
     const birthdateInput = document.getElementById('birthdate');
     if (birthdateInput) {
         birthdateInput.value = '';
     }
 
-    // Clear the life events data
     lifeEvents = [];
     const chartContainer = document.getElementById('chart-container');
     if (chartContainer) {
         chartContainer.innerHTML = '';
     }
     
-    // Clear the events legend
     updateLegend();
 }
 
@@ -495,8 +466,6 @@ function handleLoggedOutState() {
     if (landingPageImg) landingPageImg.style.display = 'block';
     if (landingPageDiv) landingPageDiv.style.display = 'flex';
     
-    
-
     lifeEvents = [];
     updateLegend();
     updateUserName();
@@ -519,53 +488,38 @@ function switchToLoggedInState(user) {
     $('#main-content').show();
     $('#auth-header').hide();
     $('#navbar').show();
-    // Populate auth-header with user info and logout button
 }
 
 
 
 
 function onUserLoggedIn(user) {
-
-    const authContainer = document.getElementById('auth-container');
-    if (authContainer) authContainer.style.display = 'none';
-
-    const logoutButton = document.getElementById('logout-button');
-    if (logoutButton) logoutButton.style.display = 'block';
-
-    const navbar = document.getElementById('navbar');
-    if (navbar) navbar.style.display = 'flex';
-
-    const toggleAuthButton = document.getElementById('toggle-auth');
-    if (toggleAuthButton) toggleAuthButton.style.display = 'none';
-
-    const registerSection = document.getElementById('register-section');
-    if (registerSection) registerSection.style.display = 'none';
-
-    const signInLink = document.getElementById('signin-link');
-    if (signInLink) signInLink.style.display = 'none';
-
-    const accountImg = document.getElementById('accountImg');
-    if (accountImg) accountImg.style.display = 'block';
-
-    const accountMenu = document.getElementById('account-menu');
-    if (accountMenu) accountMenu.style.display = 'none';
-
-    const landingPageImg = document.getElementById('landingPage');
-    if (landingPageImg) landingPageImg.style.display = 'none';
-
     var floatingDiv = document.getElementById('floating-div');
-    if (floatingDiv) {
-        floatingDiv.style.display = 'none';
-    }
+    var authContainer = document.getElementById('auth-container');
+    var logoutButton = document.getElementById('logout-button');
+    var navbar = document.getElementById('navbar');
+    var registerSection = document.getElementById('register-section');
+    var toggleAuthButton = document.getElementById('toggle-auth');
+    var accountImg = document.getElementById('accountImg');
+    var accountMenu = document.getElementById('account-menu');
+    var landingPageImg = document.getElementById('landingPage');
+    var signInLink = document.getElementById('signin-link');
 
+    if (authContainer) authContainer.style.display = 'none';
+    if (logoutButton) logoutButton.style.display = 'block';
+    if (navbar) navbar.style.display = 'flex';
+    if (toggleAuthButton) toggleAuthButton.style.display = 'none';
+    if (registerSection) registerSection.style.display = 'none';
+    if (signInLink) signInLink.style.display = 'none';
+    if (accountImg) accountImg.style.display = 'block';
+    if (accountMenu) accountMenu.style.display = 'none';
+    if (landingPageImg) landingPageImg.style.display = 'none';
+    if (floatingDiv) floatingDiv.style.display = 'none';
 
     clearUserData()
-    // Load data from Firebase
     loadLifeEventsFromDatabase(user.uid);
     loadBirthDateFromDatabase(user.uid);
 
-    // Update UI
     updateLegend();
     updateUserName();
     createWeekLabels();
@@ -583,12 +537,6 @@ $('#login-button').click(() => {
         console.error('Email or password is missing');
     }
 });
-
-// $('#register-button').click(() => {
-//     const email = $('#register-email').val();
-//     const password = $('#register-password').val();
-//     registerUser(email, password);
-// });
 
 $('#logout-button').click(logoutUser);
 

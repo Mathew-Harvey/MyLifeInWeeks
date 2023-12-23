@@ -60,15 +60,11 @@
             <input type="email" id="login-email" placeholder="Email" style="margin-bottom: 10px;">
             <input type="password" id="login-password" placeholder="Password" style="margin-bottom: 10px;">
 
-            <!-- ... -->
-            <button  onclick="loginUser()">Login</button>
-            <!-- Button to toggle to the registration form -->
+            <button onclick="loginUser()">Login</button>
             <button onclick="toggleAuthMode()">I want to register</button>
         </div>
 
-        <!-- Registration Section -->
         <div id="register-section" style="display: none;">
-            <!-- Registration form elements -->
             <h1>Bringing life into perspective</h1>
             <h3 id="lifeShortText" style="color: white;">Life is short, What's your next move?</h3>
 
@@ -76,14 +72,11 @@
 
             <input type="email" id="register-email" placeholder="Email" style="margin-bottom: 10px;">
             <input type="password" id="register-password" placeholder="Password" style="margin-bottom: 10px;">
-            <!-- ... -->
-            <button id="register-action" onclick="registerUser()">Register</button>
-            <!-- Button to toggle to the login form -->
+            <button onclick="registerUser()">Register</button>
             <button onclick="toggleAuthMode()">I want to login</button>
         </div>
 
     </div>
-    <!-- Main Content -->
     <div id="main-content" style="display: none;">
         <header>
             <h1>MY LIFE IN WEEKS</h1>
@@ -118,7 +111,6 @@
 
     </div>
 
-    <!-- External Libraries -->
     <script async src="https://static.addtoany.com/menu/page.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -129,7 +121,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
 
-    <!-- Your Custom Script -->
     <script src="./firebaseConfig.js"></script>
     <script src="./script.js"></script>
 </body>
