@@ -42,59 +42,46 @@
         </div>
     </nav>
 
-    <nav id="navbar">
-        <div id="nav-actions">
-            <button onclick="downloadImage()">Download My Life</button>
-            <button id="logout-button" onclick="logoutUser()">Logout</button>
-        </div>
-    </nav>
-    <button id="toggle-auth" onclick="toggleAuthMode()">Register</button>
-    <div id="login-container"
-        style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+    <div id="landing-page"
+        style="display: flex; flex-direction: row-reverse; align-items: center; justify-content: center;">
+        <div class="image-bloom-container">
+        <img src="./landingPage.png" id="landingPage" alt="This is an awesome Image, bad luck you can't see it"
+            style="cursor: pointer; padding: 10px;"> <!-- Login Section -->
 
-        <div id="image-placeholder" style="height: 200px; background-color: #ccc; margin-bottom: 30px;">Image
-            Placeholder</div>
+        </div>
         <!-- Login Section -->
-        <div id="login-section" style="width: 300px;">
-            <h2>Login</h2>
+        <div id="login-section" >
+            <!-- Login form elements -->
+            <h1>Bringing life into perspective</h1>
+            <h3 id="lifeShortText" style="color: white;">Life is short, What's your next move?</h3>
+
+            <h2 style="color: white;">Login</h2>
+
             <input type="email" id="login-email" placeholder="Email" style="margin-bottom: 10px;">
             <input type="password" id="login-password" placeholder="Password" style="margin-bottom: 10px;">
-            <button id="login-button" onclick="loginUser()">Login</button>
 
-            <h1>Bringing life into perspective</h1>
-            <p>Life is short, What's your next move?</p>
-
-            <!-- SSO for Google and Sign up with email -->
-            <button id="google-sign-in" onclick="signInWithGoogle()"
-                style="background-color: #4285F4; color: white; border: none; padding: 10px 15px; margin-top: 20px; cursor: pointer;">
-                Sign in with Google
-            </button>
-            <button class="email-sign-up" id="toggle-auth" onclick="toggleAuthMode()"
-                style="background-color: #6c63ff; color: white; border: none; padding: 10px 15px; margin-top: 10px; cursor: pointer;">
-                Sign up with email
-            </button>
+            <!-- ... -->
+            <button  onclick="loginUser()">Login</button>
+            <!-- Button to toggle to the registration form -->
+            <button onclick="toggleAuthMode()">I want to register</button>
         </div>
-
 
         <!-- Registration Section -->
-        <div id="register-section" style="width: 300px; ">
-            <h2>Register</h2>
+        <div id="register-section" style="display: none;">
+            <!-- Registration form elements -->
+            <h1>Bringing life into perspective</h1>
+            <h3 id="lifeShortText" style="color: white;">Life is short, What's your next move?</h3>
+
+            <h2 style="color: white;">Register</h2>
+
             <input type="email" id="register-email" placeholder="Email" style="margin-bottom: 10px;">
             <input type="password" id="register-password" placeholder="Password" style="margin-bottom: 10px;">
-            <button id="register-button" onclick="registerUser()">Register</button>
-            <h1>Bringing life into perspective</h1>
-            <p>Life is short, What's your next move?</p>
-
-            <!-- SSO for Google and Sign up with email -->
-            <button id="google-sign-in" onclick="signInWithGoogle()"
-                style="background-color: #4285F4; color: white; border: none; padding: 10px 15px; margin-top: 20px; cursor: pointer;">
-                Sign in with Google
-            </button>
-            <button id="email-sign-up" onclick="toggleAuthMode()"
-                style="background-color: #6c63ff; color: white; border: none; padding: 10px 15px; margin-top: 10px; cursor: pointer;">
-                Sign up with email
-            </button>
+            <!-- ... -->
+            <button id="register-action" onclick="registerUser()">Register</button>
+            <!-- Button to toggle to the login form -->
+            <button onclick="toggleAuthMode()">I want to login</button>
         </div>
+
     </div>
     <!-- Main Content -->
     <div id="main-content" style="display: none;">
@@ -105,7 +92,7 @@
         <div class="birthdate-section">
             <p>Enter your birthday and add life events</p>
             <input type="date" id="birthdate" onchange="calculateAge()">
-            <button id="toggle-life-events">Life Events</button>
+            <button id="toggle-life-events" onclick="toggleLifeEvent()">Life Events</button>
         </div>
 
         <div id="week-text-label">Weeks</div>

@@ -9,6 +9,43 @@ let lifeEvents = [];
 let totalWeeksLived = 0;
 let birthDate = null;
 
+$(document).ready(function() {
+    // Initialize draggable feature for floating div
+    $("#floating-div").draggable({ containment: "window" });
+
+    // Set up any initial states
+    updateLegend();
+    updateUserName();
+    
+    // Set up your week and year labels
+    createWeekLabels();
+    createYearLabels(100);
+
+    // Event handlers
+    $('#login-action').click(loginUser); // Button to log in
+    $('#register-action').click(registerUser); // Button to register
+    $('#login-button').click(loginUser);
+    $('#logout-button').click(logoutUser);
+    $('#toggle-auth').click(toggleAuthMode);
+    $('#birthdate').change(calculateAge);
+    $('#add-event-btn').click(addEvent);
+    $('#accountImg').click(toggleAccountMenu);
+
+    // Check auth state on page load
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            onUserLoggedIn(user);
+        } else {
+            handleLoggedOutState();
+        }
+    });
+
+    // Call this function to set the initial auth mode
+    toggleAuthMode();
+
+    // Make sure all DOM-related initializations are done
+    initializeApp();
+});
 function createWeekLabels() {
     const weekLabelsContainer = document.getElementById('week-labels-container');
     weekLabelsContainer.innerHTML = '';
@@ -109,57 +146,19 @@ function calculateAge() {
     }
 }
 
-function initializeApp() {
-    // Set up any initial states
-    updateLegend();
-    updateUserName();
 
-    // Initialize event handlers for DOM elements
-    document.getElementById('birthdate').addEventListener('change', calculateAge);
 
-    var toggleLifeEventsButton = document.getElementById('toggle-life-events');
-    if (toggleLifeEventsButton) {
-        toggleLifeEventsButton.addEventListener('click', function (e) {
-            e.stopPropagation();
-            var floatingDiv = document.getElementById('floating-div');
-            if (floatingDiv.style.display === 'none' || !floatingDiv.style.display) {
-                floatingDiv.style.display = 'block';
-            } else {
-                floatingDiv.style.display = 'none';
-            }
-        });
-    }
-
-    var addEventButton = document.getElementById('add-event-btn');
-    if (addEventButton) {
-        addEventButton.addEventListener('click', addEvent);
-    }
-
-    // Set up your week and year labels
-    createWeekLabels();
-    createYearLabels(100);
-
-    // Hide the floating div by default and make it draggable using jQuery UI
-    var floatingDiv = document.getElementById('floating-div');
-    if (floatingDiv) {
-        floatingDiv.style.display = 'none';
-        $(floatingDiv).draggable({ containment: "window" });
-    }
-
-    // If a user is already logged in, adjust the UI accordingly
-    if (auth.currentUser) {
-        onUserLoggedIn(auth.currentUser);
-    } else {
-        handleLoggedOutState();
-    }
-}
 
 document.addEventListener('DOMContentLoaded', function () {
-
+    toggleAuthMode();
     initializeApp();
-
+    updateLegend();
+    updateUserName();
+    createWeekLabels();
+    createYearLabels(100);
+    document.getElementById('login-action').addEventListener('click', loginUser); // Button to log in
+    document.getElementById('register-action').addEventListener('click', registerUser); // Button to register
     document.getElementById('login-button').addEventListener('click', loginUser);
-    document.getElementById('register-button').addEventListener('click', registerUser);
     document.getElementById('logout-button').addEventListener('click', logoutUser);
     document.getElementById('toggle-auth').addEventListener('click', toggleAuthMode);
 
@@ -338,19 +337,53 @@ function createEventLabels(container, lifeEvents, birthDate) {
 
 createEventLabels(document.getElementById('chart-container'), lifeEvents, birthDate);
 
+function showError(message) {
+    // Create the error message container if it doesn't exist
+    let errorContainer = document.getElementById('error-message');
+    if (!errorContainer) {
+        errorContainer = document.createElement('div');
+        errorContainer.id = 'error-message';
+        errorContainer.style.position = 'fixed';
+        errorContainer.style.bottom = '20px';
+        errorContainer.style.left = '50%';
+        errorContainer.style.transform = 'translateX(-50%)';
+        errorContainer.style.backgroundColor = 'red';
+        errorContainer.style.color = 'white';
+        errorContainer.style.padding = '10px';
+        errorContainer.style.borderRadius = '5px';
+        errorContainer.style.zIndex = '1000';
+        errorContainer.style.display = 'none';
+        document.body.appendChild(errorContainer);
+    }
+    
+    // Show the error message
+    errorContainer.textContent = message;
+    errorContainer.style.display = 'block';
+    
+    // Hide the message after 3 seconds
+    setTimeout(() => {
+        errorContainer.style.display = 'none';
+    }, 3000);
+}
+
 function toggleAuthMode() {
     const loginSection = document.getElementById('login-section');
     const registerSection = document.getElementById('register-section');
-    const toggleButton = document.getElementById('toggle-auth');
+    const toggleAuthButtonText = document.getElementById('toggle-auth-text'); // Assume this is a span or div inside the button
+    const loginContainer = document.getElementById('login-container');
+    const registerButton = document.getElementById('register-action'); // Button to actually register a user
 
-    if (loginSection.style.display === 'none') {
-        loginSection.style.display = 'block';
-        registerSection.style.display = 'none';
-        toggleButton.textContent = 'Register';
-    } else {
+    if (registerSection.style.display === 'none') {
         loginSection.style.display = 'none';
         registerSection.style.display = 'block';
-        toggleButton.textContent = 'Login';
+        toggleAuthButtonText.textContent = 'Login'; // Change the text to 'Login'
+        loginContainer.querySelector('h2').textContent = 'Register'; // Change the heading to 'Register'
+        registerButton.style.display = 'block'; // Show the actual register button
+    } else {
+        loginSection.style.display = 'block';
+        registerSection.style.display = 'none';
+        loginContainer.querySelector('h2').textContent = 'Login'; // Change the heading to 'Login'
+        registerButton.style.display = 'none'; // Hide the actual register button
     }
 }
 
@@ -361,13 +394,13 @@ function registerUser() {
         auth.createUserWithEmailAndPassword(email, password)
             .then((userCredential) => {
                 console.log('User registered:', userCredential.user);
-                switchToLoggedInState(userCredential.user);
+                toggleAuthMode();
             })
             .catch((error) => {
                 console.error('Registration failed:', error.message);
             });
     } else {
-        console.error('Email or password is missing');
+        console.error('Please enter both email and password.');
     }
 }
 
@@ -378,16 +411,20 @@ function loginUser() {
         auth.signInWithEmailAndPassword(email, password)
             .then((userCredential) => {
                 console.log('User logged in:', userCredential.user);
-                switchToLoggedInState(userCredential.user);
+                onUserLoggedIn(userCredential.user);
             })
             .catch((error) => {
-                console.error('Login failed:', error.message);
+                alert('Login failed:', error.message);
             });
     } else {
         console.error('Email or password is missing');
     }
     updateLegend();
     updateUserName();
+    const landingPageDiv = document.getElementById('landing-page');
+    if (landingPageDiv) {
+        landingPageDiv.style.display = 'none';
+    }
 }
 
 
@@ -399,6 +436,7 @@ function logoutUser() {
         console.error('Logout failed:', error.message);
     });
 }
+
 
 //account menu
 
@@ -440,20 +478,24 @@ function handleLoggedOutState() {
     const signInLink = document.getElementById('signin-link');
     const accountImg = document.getElementById('accountImg');
     const accountMenu = document.getElementById('account-menu');
+    const landingPageImg = document.getElementById('landingPage');
+    const landingPageDiv = document.getElementById('landing-page');
 
     if (navbarUserInfo) navbarUserInfo.innerHTML = '';
     if (loginContainer) loginContainer.style.display = 'flex';
     if (authContainer) authContainer.style.display = 'block';
     if (loginSection) loginSection.style.display = 'block';
     if (registerSection) registerSection.style.display = 'none';
-    if (toggleAuth) toggleAuth.textContent = 'Register';
-    if (toggleAuth) toggleAuth.style.display = 'block';
     if (logoutButton) logoutButton.style.display = 'none';
     if (signInLink) signInLink.style.display = 'none';
     if (accountImg) accountImg.style.display = 'block';
     if (mainContent) mainContent.style.display = 'none';
     if (navbar) navbar.style.display = 'none';
     if (accountMenu) accountMenu.style.display = 'none';
+    if (landingPageImg) landingPageImg.style.display = 'block';
+    if (landingPageDiv) landingPageDiv.style.display = 'flex';
+    
+    
 
     lifeEvents = [];
     updateLegend();
@@ -482,36 +524,8 @@ function switchToLoggedInState(user) {
 
 
 
-function updateUIForAuthState(isLoggedIn) {
-    // Common UI elements
-    const mainContent = document.getElementById('main-content');
-    const authContainer = document.getElementById('auth-container');
-    const logoutButton = document.getElementById('logout-button');
-    const toggleAuthButton = document.getElementById('toggle-auth');
-    const registerSection = document.getElementById('register-section');
-
-    // Show or hide elements based on whether the user is logged in
-    if (isLoggedIn) {
-        mainContent.style.display = 'block';
-        authContainer.style.display = 'none';
-        logoutButton.style.display = 'block';
-        toggleAuthButton.style.display = 'none';
-        registerSection.style.display = 'none';
-    } else {
-        mainContent.style.display = 'none';
-        authContainer.style.display = 'block';
-        logoutButton.style.display = 'none';
-        toggleAuthButton.style.display = 'block';
-        registerSection.style.display = 'block';
-    }
-}
-
-
 
 function onUserLoggedIn(user) {
-    // Safe checks for DOM elements before manipulating
-    // const mainContent = document.getElementById('main-content');
-    // if (mainContent) mainContent.style.display = 'block';
 
     const authContainer = document.getElementById('auth-container');
     if (authContainer) authContainer.style.display = 'none';
@@ -529,14 +543,21 @@ function onUserLoggedIn(user) {
     if (registerSection) registerSection.style.display = 'none';
 
     const signInLink = document.getElementById('signin-link');
-    if (signInLink) registerSection.style.display = 'none';
+    if (signInLink) signInLink.style.display = 'none';
 
     const accountImg = document.getElementById('accountImg');
-    if (accountImg) registerSection.style.display = 'block';
+    if (accountImg) accountImg.style.display = 'block';
 
     const accountMenu = document.getElementById('account-menu');
-    if (accountMenu) registerSection.style.display = 'none';
+    if (accountMenu) accountMenu.style.display = 'none';
 
+    const landingPageImg = document.getElementById('landingPage');
+    if (landingPageImg) landingPageImg.style.display = 'none';
+
+    var floatingDiv = document.getElementById('floating-div');
+    if (floatingDiv) {
+        floatingDiv.style.display = 'none';
+    }
 
 
     clearUserData()
@@ -547,6 +568,8 @@ function onUserLoggedIn(user) {
     // Update UI
     updateLegend();
     updateUserName();
+    createWeekLabels();
+    createYearLabels(100);
 }
 
 
@@ -561,11 +584,11 @@ $('#login-button').click(() => {
     }
 });
 
-$('#register-button').click(() => {
-    const email = $('#register-email').val();
-    const password = $('#register-password').val();
-    registerUser(email, password);
-});
+// $('#register-button').click(() => {
+//     const email = $('#register-email').val();
+//     const password = $('#register-password').val();
+//     registerUser(email, password);
+// });
 
 $('#logout-button').click(logoutUser);
 
@@ -792,3 +815,13 @@ function downloadImage() {
     });
     yearTextLabel.style.transform = originalTransform;
 }
+
+function toggleLifeEvent() {
+    var floatingDiv = document.getElementById('floating-div');
+    if (floatingDiv.style.display === 'none' || !floatingDiv.style.display) {
+        floatingDiv.style.display = 'block';
+    } else {
+        floatingDiv.style.display = 'none';
+    }
+}
+
