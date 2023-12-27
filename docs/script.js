@@ -7,7 +7,7 @@ const database = firebase.database();
 let eventCounter = 0;
 let lifeEvents = [];
 let totalWeeksLived = 0;
-let birthDate = null;
+let birthDate = "Feb 09 2007 09:00:00 GMT+0900 (Australian Western Daylight Time)";
 
 $(document).ready(function() {
     // Initialize draggable feature for floating div
@@ -29,7 +29,7 @@ $(document).ready(function() {
     $('#toggle-auth').click(toggleAuthMode);
     $('#birthdate').change(calculateAge);
     $('#add-event-btn').click(addEvent);
-    $('#accountImg').click(toggleAccountMenu);
+    // $('#accountImg').click(toggleAccountMenu);
 
     // Check auth state on page load
     firebase.auth().onAuthStateChanged(function(user) {
@@ -74,6 +74,7 @@ function createWeekBoxes(container, totalWeeksLived, totalYears) {
     let weeksCounter = 0;
     const today = new Date();
     const currentWeek = Math.ceil((today - birthDate) / (7 * 24 * 60 * 60 * 1000));
+    console.log('BirthDate: ', birthDate);
 
     for (let year = 0; year < totalYears; year++) {
         const yearContainer = document.createElement('div');
@@ -179,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function () {
     updateUserName();
     createWeekLabels();
     createYearLabels(100);
-    document.getElementById('login-action').addEventListener('click', loginUser); // Button to log in
+    // document.getElementById('login-action').addEventListener('click', loginUser); // Button to log in
     document.getElementById('register-action').addEventListener('click', registerUser); // Button to register
     document.getElementById('login-button').addEventListener('click', loginUser);
     document.getElementById('logout-button').addEventListener('click', logoutUser);
@@ -349,31 +350,34 @@ function toggleAuthMode() {
     if (registerSection.style.display === 'none') {
         loginSection.style.display = 'none';
         registerSection.style.display = 'block';
-        toggleAuthButtonText.textContent = 'Login'; // Change the text to 'Login'
-        loginContainer.querySelector('h2').textContent = 'Register'; // Change the heading to 'Register'
-        registerButton.style.display = 'block'; // Show the actual register button
+        // toggleAuthButtonText.textContent = 'Login'; // Change the text to 'Login'
+        // loginContainer.querySelector('h2').textContent = 'Register'; // Change the heading to 'Register'
+        // registerButton.style.display = 'block'; // Show the actual register button
     } else {
         loginSection.style.display = 'block';
         registerSection.style.display = 'none';
-        loginContainer.querySelector('h2').textContent = 'Login'; // Change the heading to 'Login'
-        registerButton.style.display = 'none'; // Hide the actual register button
+        // loginContainer.querySelector('h2').textContent = 'Login'; // Change the heading to 'Login'
+        // registerButton.style.display = 'none'; // Hide the actual register button
     }
 }
 
-function registerUser() {
+function registerUser(user) {
     const email = document.getElementById('register-email').value;
     const password = document.getElementById('register-password').value;
     if (email && password) {
         auth.createUserWithEmailAndPassword(email, password)
             .then((userCredential) => {
                 console.log('User registered:', userCredential.user);
-                toggleAuthMode();
+                // toggleAuthMode();
+                onUserLoggedIn(user)
+                
+                
             })
             .catch((error) => {
-                console.error('Registration failed:', error.message);
+                // alert('Registration failed:', error.message);
             });
     } else {
-        console.error('Please enter both email and password.');
+        alert('Please enter both email and password. ');
     }
 }
 
@@ -396,9 +400,8 @@ function loginUser() {
                 alert('Login failed:', error.message);
             });
     } else {
-        console.error('Email or password is missing');
+        alert('Email or password is missing - hit refresh to try again');
     }
-    createEmptyWeekBoxes(chartContainer, 90)
     updateLegend();
     updateUserName();
     
@@ -463,8 +466,11 @@ function handleLoggedOutState() {
     if (mainContent) mainContent.style.display = 'none';
     if (navbar) navbar.style.display = 'none';
     if (accountMenu) accountMenu.style.display = 'none';
-    if (landingPageImg) landingPageImg.style.display = 'block';
+    if (landingPageImg) landingPageImg.style.display = 'flex';
     if (landingPageDiv) landingPageDiv.style.display = 'flex';
+    if (landingPageDiv) landingPageDiv.style.flexDirection = 'row-reverse';
+    if (landingPageDiv) landingPageDiv.style.alignItems = 'center';
+    if (landingPageDiv) landingPageDiv.style.justifyContent = 'center';
     
     lifeEvents = [];
     updateLegend();
@@ -488,6 +494,7 @@ function switchToLoggedInState(user) {
     $('#main-content').show();
     $('#auth-header').hide();
     $('#navbar').show();
+    $('#landing-page').hide();
 }
 
 
@@ -504,6 +511,8 @@ function onUserLoggedIn(user) {
     var accountMenu = document.getElementById('account-menu');
     var landingPageImg = document.getElementById('landingPage');
     var signInLink = document.getElementById('signin-link');
+    var landingPageDiv = document.getElementById('landing-page');
+    var loginSectionDiv = document.getElementById('login-section');
 
     if (authContainer) authContainer.style.display = 'none';
     if (logoutButton) logoutButton.style.display = 'block';
@@ -515,6 +524,8 @@ function onUserLoggedIn(user) {
     if (accountMenu) accountMenu.style.display = 'none';
     if (landingPageImg) landingPageImg.style.display = 'none';
     if (floatingDiv) floatingDiv.style.display = 'none';
+    if (landingPageDiv) landingPageDiv.style.display = 'none';
+    if (loginSectionDiv) loginSectionDiv.style.display = 'none';
 
     clearUserData()
     loadLifeEventsFromDatabase(user.uid);
