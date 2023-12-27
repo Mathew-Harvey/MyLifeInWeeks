@@ -8,3 +8,5 @@ const firebaseConfig = {
         appId: process.env.APP_FIREBASE_APP_ID,
         measurementId: process.env.APP_FIREBASE_MEASUREMENT_ID
 };
+
+export default firebaseConfig;

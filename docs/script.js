@@ -1,3 +1,7 @@
+import firebaseConfig from './firebaseConfig';
+import './style.css';
+import landingPage from './landingPage.png';
+
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
@@ -108,8 +112,8 @@ function createWeekBoxes(container, totalWeeksLived, totalYears) {
             // Life events coloring
             if (birthDate) {
                 lifeEvents.forEach(event => {
-                    const eventStartWeek = Math.floor((event.start.getTime() - birthDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
-                    const eventEndWeek = Math.floor((event.end.getTime() - birthDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
+                    const eventStartWeek = Math.floor((event.start - birthDate) / (7 * 24 * 60 * 60 * 1000));
+                    const eventEndWeek = Math.floor((event.end - birthDate) / (7 * 24 * 60 * 60 * 1000));
                     if (weeksCounter >= eventStartWeek && weeksCounter < eventEndWeek) {
                         weekBox.style.backgroundColor = event.color;
                         weekBox.title = event.name;
@@ -177,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function () {
     toggleAuthMode();
     initializeApp();
     updateLegend();
-    updateUserName();
+    // updateUserName();
     createWeekLabels();
     createYearLabels(100);
     // document.getElementById('login-action').addEventListener('click', loginUser); // Button to log in
@@ -208,7 +212,7 @@ function addOrUpdateEvent(counter) {
     const start = new Date(startStr);
     const end = new Date(endStr);
 
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    if (isNaN(start) || isNaN(end)) {
         console.error('Invalid event date:', { startStr, endStr });
         alert('Invalid event dates. Please enter valid dates.');
         return;
@@ -282,8 +286,8 @@ function formatDate(date) {
 function createEventLabels(container, lifeEvents, birthDate) {
 
     lifeEvents.forEach(event => {
-        const eventStartWeek = Math.floor((event.start.getTime() - birthDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
-        const eventEndWeek = Math.floor((event.end.getTime() - birthDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
+        const eventStartWeek = Math.floor((event.start - birthDate) / (7 * 24 * 60 * 60 * 1000));
+        const eventEndWeek = Math.floor((event.end - birthDate) / (7 * 24 * 60 * 60 * 1000));
         const eventMidWeek = eventStartWeek + (eventEndWeek - eventStartWeek) / 2;
         const yearPosition = Math.floor(eventMidWeek / 52);
         const weekPosition = eventMidWeek % 52;
@@ -381,7 +385,7 @@ function registerUser(user) {
     }
 }
 
-function loginUser() {
+window.loginUser = function() {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
     const landingPageDiv = document.getElementById('landing-page');
@@ -408,7 +412,7 @@ function loginUser() {
 }
 
 
-function logoutUser() {
+window.logoutUser = function() {
     auth.signOut().then(() => {
         console.log('User logged out');
         handleLoggedOutState();
@@ -583,7 +587,7 @@ function loadLifeEventsFromDatabase(userId) {
 
 function isValidDateString(dateStr) {
     const date = new Date(dateStr);
-    return !isNaN(date.getTime());
+    return !isNaN(date);
 }
 
 function saveBirthDateToDatabase(userId, birthDate) {
@@ -736,6 +740,9 @@ function updateUserName() {
         if (userNameElement) {
             userNameElement.textContent = userName;
         }
+        else {
+            console.error('User name element not found');
+        }
     }
 }
 // Call these functions whenever the life events update or user logs in/out
@@ -743,13 +750,13 @@ function updateUserName() {
 
 
 
-function printContent() {
+window.printContent = function () {
     window.print();
 }
 
 const clarityScaleFactor = window.devicePixelRatio || 4;
 
-function downloadImage() {
+ window.downloadImage = function() {
     const content = document.getElementById('main-content');
 
     const originalWidth = content.style.width;
@@ -775,12 +782,13 @@ function downloadImage() {
     yearTextLabel.style.transform = originalTransform;
 }
 
-function toggleLifeEvent() {
+
+ window.toggleLifeEvent = function() {
     var floatingDiv = document.getElementById('floating-div');
     if (floatingDiv.style.display === 'none' || !floatingDiv.style.display) {
         floatingDiv.style.display = 'block';
     } else {
         floatingDiv.style.display = 'none';
     }
-}
+};
 

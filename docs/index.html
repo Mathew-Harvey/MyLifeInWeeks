@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Life in Weeks</title>
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css" />
     <!-- Add your additional script tags here -->
@@ -36,7 +36,7 @@
                     <a href="#" id="" onclick="downloadImage()" display: block; margin-bottom: 10px;>Download Life</a>
                     <a href="#" style="display: block; margin-bottom: 10px;">Contact Support</a>
                     <hr>
-                    <a href="#" id="logout-link" onclick="logoutUser()">Logout</a>
+                    <a href="#" id="logout-link" onclick="window.logoutUser()">Logout</a>
                 </div>
             </div>
         </div>
@@ -85,7 +85,7 @@
         <div class="birthdate-section">
             <p>Enter your birthday and add life events</p>
             <input type="date" id="birthdate" onchange="calculateAge()">
-            <button id="toggle-life-events" onclick="toggleLifeEvent()">Life Events</button>
+            <button id="toggle-life-events" onclick="window.toggleLifeEvent()">Life Events</button>
         </div>
 
         <div id="week-text-label">Weeks</div>
@@ -121,7 +121,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
 
-    <script src="../firebaseConfig.js"></script>
+    <script src="./firebaseConfig.js"></script>
     <script src="./script.js"></script>
 </body>
 

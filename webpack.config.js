@@ -11,10 +11,11 @@ module.exports = () => {
     }, {});
 
     return {
-        entry: './src/index.js', // Point this to your main JavaScript file
+        entry: '/docs/script.js', // Point this to your main JavaScript file
         output: {
             path: path.resolve(__dirname, 'dist'),
-            filename: 'bundle.js'
+            filename: 'bundle.js',
+            publicPath: '/'
         },
         plugins: [
             new webpack.DefinePlugin(envKeys),
@@ -30,6 +31,14 @@ module.exports = () => {
                     use: {
                         loader: 'babel-loader',
                     },
+                },
+                {
+                    test: /\.css$/,
+                    use: ['style-loader', 'css-loader'],
+                },
+                {
+                    test: /\.(png|svg|jpg|jpeg|gif)$/i,
+                    type: 'asset/resource',
                 },
             ],
         },
