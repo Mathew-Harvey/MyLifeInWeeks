@@ -1,41 +1,31 @@
-import firebaseConfig from './firebaseConfig';
-import './style.css';
-import landingPage from './landingPage.png';
-
+// Initialize Firebase with config
 firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
-
 const database = firebase.database();
 
+// Global variables
 let eventCounter = 0;
 let lifeEvents = [];
 let totalWeeksLived = 0;
-let birthDate = "Feb 09 2007 09:00:00 GMT+0900 (Australian Western Daylight Time)";
+let birthDate = null;
 
+// Document Ready Handler
 $(document).ready(function() {
-    // Initialize draggable feature for floating div
     $("#floating-div").draggable({ containment: "window" });
-
-    // Set up any initial states
     updateLegend();
     updateUserName();
-    
-    // Set up your week and year labels
     createWeekLabels();
     createYearLabels(100);
 
-    // Event handlers
-    $('#login-action').click(loginUser); // Button to log in
-    $('#register-action').click(registerUser); // Button to register
-    $('#login-button').click(loginUser);
-    $('#logout-button').click(logoutUser);
-    $('#toggle-auth').click(toggleAuthMode);
+    // Event Listeners
     $('#birthdate').change(calculateAge);
     $('#add-event-btn').click(addEvent);
-    // $('#accountImg').click(toggleAccountMenu);
+    $('#accountImg').click(function() {
+        var accountMenu = document.getElementById('account-menu');
+        accountMenu.style.display = accountMenu.style.display === 'block' ? 'none' : 'block';
+    });
 
-    // Check auth state on page load
+    // Auth state observer
     firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
             onUserLoggedIn(user);
@@ -44,12 +34,11 @@ $(document).ready(function() {
         }
     });
 
-    // Call this function to set the initial auth mode
     toggleAuthMode();
-
-    // Make sure all DOM-related initializations are done
     initializeApp();
 });
+
+// Week and Year Labels
 function createWeekLabels() {
     const weekLabelsContainer = document.getElementById('week-labels-container');
     weekLabelsContainer.innerHTML = '';
@@ -72,19 +61,18 @@ function createYearLabels(totalYears) {
     }
 }
 
+// Week Boxes Creation
 function createWeekBoxes(container, totalWeeksLived, totalYears) {
     container.innerHTML = '';
     const weeksPerYear = 52;
     let weeksCounter = 0;
     const today = new Date();
     const currentWeek = Math.ceil((today - birthDate) / (7 * 24 * 60 * 60 * 1000));
-    console.log('BirthDate: ', birthDate);
 
     for (let year = 0; year < totalYears; year++) {
         const yearContainer = document.createElement('div');
         yearContainer.classList.add('year-container');
 
-        // Decade spacer (if applicable)
         if (year % 10 === 0) {
             const decadeSpacer = document.createElement('div');
             decadeSpacer.classList.add('decade-spacer');
@@ -92,7 +80,6 @@ function createWeekBoxes(container, totalWeeksLived, totalYears) {
         }
 
         for (let week = 0; week < weeksPerYear; week++) {
-            // Month spacer (if applicable)
             if (week % 4 === 0) {
                 const monthSpacer = document.createElement('div');
                 monthSpacer.classList.add('month-spacer');
@@ -101,15 +88,15 @@ function createWeekBoxes(container, totalWeeksLived, totalYears) {
 
             const weekBox = document.createElement('div');
             weekBox.classList.add('week-box');
+            
             if (weeksCounter < totalWeeksLived) {
                 weekBox.classList.add('lived');
             }
 
             if (weeksCounter === currentWeek) {
-                weekBox.classList.add('current-week'); // Add a class for current week styling
+                weekBox.classList.add('current-week');
             }
 
-            // Life events coloring
             if (birthDate) {
                 lifeEvents.forEach(event => {
                     const eventStartWeek = Math.floor((event.start - birthDate) / (7 * 24 * 60 * 60 * 1000));
@@ -127,6 +114,7 @@ function createWeekBoxes(container, totalWeeksLived, totalYears) {
     }
 }
 
+// Age Calculation
 function calculateAge() {
     const inputBirthDate = document.getElementById('birthdate').value;
     if (inputBirthDate) {
@@ -151,115 +139,91 @@ function calculateAge() {
     }
 }
 
+// Life Events Management
+function addEvent() {
+    const eventGroup = $('<div/>', { class: 'event-group' }).appendTo("#floating-div");
+    
+    // Name and color container
+    const nameColorContainer = $('<div/>', { class: 'name-color-container' }).appendTo(eventGroup);
+    $('<input/>', {
+        type: 'text',
+        id: `event-name-${eventCounter}`,
+        placeholder: 'Event Name'
+    }).appendTo(nameColorContainer);
+    $('<input/>', {
+        type: 'color',
+        id: `event-color-${eventCounter}`
+    }).appendTo(nameColorContainer);
 
-function createEmptyWeekBoxes(container, totalYears) {
-    container.innerHTML = '';
-    const weeksPerYear = 52;
-    for (let year = 0; year < totalYears; year++) {
-        const yearContainer = document.createElement('div');
-        yearContainer.classList.add('year-container');
-        for (let week = 0; week < weeksPerYear; week++) {
-            const weekBox = document.createElement('div');
-            weekBox.classList.add('week-box', 'unlived'); // Default state is 'unlived'
-            yearContainer.appendChild(weekBox);
+    // Date container
+    const dateContainer = $('<div/>', { class: 'date-container' }).appendTo(eventGroup);
+    $('<input/>', {
+        type: 'date',
+        class: 'date-picker',
+        id: `event-start-${eventCounter}`,
+        placeholder: 'From'
+    }).appendTo(dateContainer);
+    $('<input/>', {
+        type: 'date',
+        class: 'date-picker',
+        id: `event-end-${eventCounter}`,
+        placeholder: 'To'
+    }).appendTo(dateContainer);
+
+    // Buttons
+    $('<button/>', {
+        text: 'Save Event',
+        class: 'submit-event',
+        click: function() { addOrUpdateEvent(eventCounter); }
+    }).appendTo(eventGroup);
+    $('<button/>', {
+        text: 'x',
+        class: 'remove-event',
+        click: function(e) {
+            e.stopPropagation();
+            removeEvent('event-' + eventCounter);
         }
-        container.appendChild(yearContainer);
-    }
+    }).appendTo(eventGroup);
 }
-
-function initializeApp() {
-    // Other initializations...
-
-    // Create an empty grid initially
-    const chartContainer = document.getElementById('chart-container');
-    createEmptyWeekBoxes(chartContainer, 90); // 90 years as an example
-
-    // Other initializations...
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-    toggleAuthMode();
-    initializeApp();
-    updateLegend();
-    // updateUserName();
-    createWeekLabels();
-    createYearLabels(100);
-    // document.getElementById('login-action').addEventListener('click', loginUser); // Button to log in
-    document.getElementById('register-action').addEventListener('click', registerUser); // Button to register
-    document.getElementById('login-button').addEventListener('click', loginUser);
-    document.getElementById('logout-button').addEventListener('click', logoutUser);
-    document.getElementById('toggle-auth').addEventListener('click', toggleAuthMode);
-
-    // Check auth state on page load
-    firebase.auth().onAuthStateChanged(function (user) {
-        if (user) {
-            onUserLoggedIn(user);
-        } else {
-            handleLoggedOutState();
-        }
-    });
-});
-
-
-
 
 function addOrUpdateEvent(counter) {
-    const name = $('#event-name-' + counter).val();
-    const startStr = $('#event-start-' + counter).val();
-    const endStr = $('#event-end-' + counter).val();
-    const color = $('#event-color-' + counter).val();
+    const name = $(`#event-name-${counter}`).val();
+    const startStr = $(`#event-start-${counter}`).val();
+    const endStr = $(`#event-end-${counter}`).val();
+    const color = $(`#event-color-${counter}`).val();
 
     const start = new Date(startStr);
     const end = new Date(endStr);
 
     if (isNaN(start) || isNaN(end)) {
-        console.error('Invalid event date:', { startStr, endStr });
-        alert('Invalid event dates. Please enter valid dates.');
+        showError('Invalid event dates. Please enter valid dates.');
         return;
     }
-    console.log('Start Date:', start.toISOString()); // Debugging
-    console.log('End Date:', end.toISOString());   // Debugging
-    const eventIndex = lifeEvents.findIndex(e => e.id === 'event-' + counter);
+
+    const eventIndex = lifeEvents.findIndex(e => e.id === `event-${counter}`);
     if (eventIndex !== -1) {
-        // Update existing event
-        lifeEvents[eventIndex] = { id: 'event-' + counter, name, start, end, color };
+        lifeEvents[eventIndex] = { id: `event-${counter}`, name, start, end, color };
     } else {
-        // Add new event
-        lifeEvents.push({ id: 'event-' + counter, name, start, end, color });
+        lifeEvents.push({ id: `event-${counter}`, name, start, end, color });
         eventCounter++;
     }
 
     createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
     if (auth.currentUser) {
-        const firebaseLifeEvents = lifeEvents.map(event => {
-            // Ensure that both start and end dates are valid before converting to ISO string
-            if (isValidDate(event.start) && isValidDate(event.end)) {
-                return {
-                    ...event,
-                    start: event.start.toISOString(),
-                    end: event.end.toISOString()
-                };
-            } else {
-                console.error('Invalid event date:', event);
-                return event; // Return the original event if dates are invalid
-            }
-        });
+        const firebaseLifeEvents = lifeEvents.map(event => ({
+            ...event,
+            start: event.start.toISOString(),
+            end: event.end.toISOString()
+        }));
         saveLifeEventsToDatabase(auth.currentUser.uid, firebaseLifeEvents);
     }
-    console.log("Updated life events:", lifeEvents);
 
     updateLegend();
     if (eventIndex === -1) {
         eventCounter++;
     }
     updateFloatingDivWithEvents();
-
 }
-
-function isValidDate(d) {
-    return d instanceof Date && !isNaN(d);
-}
-
 
 function removeEvent(eventId) {
     lifeEvents = lifeEvents.filter(event => event.id !== eventId);
@@ -275,286 +239,9 @@ function removeEvent(eventId) {
         }));
         saveLifeEventsToDatabase(auth.currentUser.uid, firebaseLifeEvents);
     }
-
-    console.log("Life events after removal:", lifeEvents);
 }
 
-function formatDate(date) {
-    return date.toISOString().slice(0, 10);
-}
-
-function createEventLabels(container, lifeEvents, birthDate) {
-
-    lifeEvents.forEach(event => {
-        const eventStartWeek = Math.floor((event.start - birthDate) / (7 * 24 * 60 * 60 * 1000));
-        const eventEndWeek = Math.floor((event.end - birthDate) / (7 * 24 * 60 * 60 * 1000));
-        const eventMidWeek = eventStartWeek + (eventEndWeek - eventStartWeek) / 2;
-        const yearPosition = Math.floor(eventMidWeek / 52);
-        const weekPosition = eventMidWeek % 52;
-
-        const x1 = weekPosition * (weekBoxWidth + weekBoxMargin) + weekBoxWidth / 2;
-        const y1 = yearPosition * (weekBoxHeight + weekBoxMargin) + weekBoxHeight / 2;
-
-        const x2 = x1 < container.offsetWidth / 2 ? 0 : container.offsetWidth;
-        const y2 = y1;
-
-        svg.append("line")
-            .attr("x1", x1)
-            .attr("y1", y1)
-            .attr("x2", x2)
-            .attr("y2", y2)
-            .attr("stroke", event.color)
-            .attr("stroke-width", 2);
-
-        svg.append("text")
-            .attr("x", x2 + (x1 < container.offsetWidth / 2 ? -5 : 5))
-            .attr("y", y2)
-            .attr("dy", "0.35em")
-            .attr("text-anchor", x1 < container.offsetWidth / 2 ? "end" : "start")
-            .text(event.name)
-            .style("font-size", "12px");
-    });
-}
-
-createEventLabels(document.getElementById('chart-container'), lifeEvents, birthDate);
-
-function showError(message) {
-    let errorContainer = document.getElementById('error-message');
-    if (!errorContainer) {
-        errorContainer = document.createElement('div');
-        errorContainer.id = 'error-message';
-        errorContainer.style.position = 'fixed';
-        errorContainer.style.bottom = '20px';
-        errorContainer.style.left = '50%';
-        errorContainer.style.transform = 'translateX(-50%)';
-        errorContainer.style.backgroundColor = 'red';
-        errorContainer.style.color = 'white';
-        errorContainer.style.padding = '10px';
-        errorContainer.style.borderRadius = '5px';
-        errorContainer.style.zIndex = '1000';
-        errorContainer.style.display = 'none';
-        document.body.appendChild(errorContainer);
-    }
-    
-    errorContainer.textContent = message;
-    errorContainer.style.display = 'block';
-    
-    setTimeout(() => {
-        errorContainer.style.display = 'none';
-    }, 3000);
-}
-
-function toggleAuthMode() {
-    const loginSection = document.getElementById('login-section');
-    const registerSection = document.getElementById('register-section');
-    const toggleAuthButtonText = document.getElementById('toggle-auth-text'); // Assume this is a span or div inside the button
-    const loginContainer = document.getElementById('login-container');
-    const registerButton = document.getElementById('register-action'); // Button to actually register a user
-
-    if (registerSection.style.display === 'none') {
-        loginSection.style.display = 'none';
-        registerSection.style.display = 'block';
-        // toggleAuthButtonText.textContent = 'Login'; // Change the text to 'Login'
-        // loginContainer.querySelector('h2').textContent = 'Register'; // Change the heading to 'Register'
-        // registerButton.style.display = 'block'; // Show the actual register button
-    } else {
-        loginSection.style.display = 'block';
-        registerSection.style.display = 'none';
-        // loginContainer.querySelector('h2').textContent = 'Login'; // Change the heading to 'Login'
-        // registerButton.style.display = 'none'; // Hide the actual register button
-    }
-}
-
-function registerUser(user) {
-    const email = document.getElementById('register-email').value;
-    const password = document.getElementById('register-password').value;
-    if (email && password) {
-        auth.createUserWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                console.log('User registered:', userCredential.user);
-                // toggleAuthMode();
-                onUserLoggedIn(user)
-                
-                
-            })
-            .catch((error) => {
-                // alert('Registration failed:', error.message);
-            });
-    } else {
-        alert('Please enter both email and password. ');
-    }
-}
-
-window.loginUser = function() {
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-    const landingPageDiv = document.getElementById('landing-page');
-
-    if (landingPageDiv) landingPageDiv.style.display = 'none';
-    
-
-
-    if (email && password) {
-        auth.signInWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                console.log('User logged in:', userCredential.user);
-                onUserLoggedIn(userCredential.user);
-            })
-            .catch((error) => {
-                alert('Login failed:', error.message);
-            });
-    } else {
-        alert('Email or password is missing - hit refresh to try again');
-    }
-    updateLegend();
-    updateUserName();
-    
-}
-
-
-window.logoutUser = function() {
-    auth.signOut().then(() => {
-        console.log('User logged out');
-        handleLoggedOutState();
-    }).catch((error) => {
-        console.error('Logout failed:', error.message);
-    });
-}
-
-document.getElementById('accountImg').addEventListener('click', function() {
-    console.log('clicked');
-    var accountMenu = document.getElementById('account-menu');
-    accountMenu.style.display = accountMenu.style.display === 'block' ? 'none' : 'block';
-});
-
-function clearUserData() {
-    const birthdateInput = document.getElementById('birthdate');
-    if (birthdateInput) {
-        birthdateInput.value = '';
-    }
-
-    lifeEvents = [];
-    const chartContainer = document.getElementById('chart-container');
-    if (chartContainer) {
-        chartContainer.innerHTML = '';
-    }
-    
-    updateLegend();
-}
-
-function handleLoggedOutState() {
-
-    const mainContent = document.getElementById('main-content');
-    const navbar = document.getElementById('navbar');
-    const navbarUserInfo = document.getElementById('user-info');
-    const authContainer = document.getElementById('auth-container');
-    const loginSection = document.getElementById('login-section');
-    const registerSection = document.getElementById('register-section');
-    const toggleAuth = document.getElementById('toggle-auth');
-    const logoutButton = document.getElementById('logout-button');
-    const loginContainer = document.getElementById('login-container');
-    const signInLink = document.getElementById('signin-link');
-    const accountImg = document.getElementById('accountImg');
-    const accountMenu = document.getElementById('account-menu');
-    const landingPageImg = document.getElementById('landingPage');
-    const landingPageDiv = document.getElementById('landing-page');
-
-    if (navbarUserInfo) navbarUserInfo.innerHTML = '';
-    if (loginContainer) loginContainer.style.display = 'flex';
-    if (authContainer) authContainer.style.display = 'block';
-    if (loginSection) loginSection.style.display = 'block';
-    if (registerSection) registerSection.style.display = 'none';
-    if (logoutButton) logoutButton.style.display = 'none';
-    if (signInLink) signInLink.style.display = 'none';
-    if (accountImg) accountImg.style.display = 'block';
-    if (mainContent) mainContent.style.display = 'none';
-    if (navbar) navbar.style.display = 'none';
-    if (accountMenu) accountMenu.style.display = 'none';
-    if (landingPageImg) landingPageImg.style.display = 'flex';
-    if (landingPageDiv) landingPageDiv.style.display = 'flex';
-    if (landingPageDiv) landingPageDiv.style.flexDirection = 'row-reverse';
-    if (landingPageDiv) landingPageDiv.style.alignItems = 'center';
-    if (landingPageDiv) landingPageDiv.style.justifyContent = 'center';
-    
-    lifeEvents = [];
-    updateLegend();
-    updateUserName();
-    clearUserData();
-}
-
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        onUserLoggedIn(user);
-        loadBirthDateFromDatabase(user.uid);
-        loadLifeEventsFromDatabase(user.uid);
-        switchToLoggedInState(user);
-    } else {
-        handleLoggedOutState();
-    }
-});
-
-function switchToLoggedInState(user) {
-    $('#login-container').hide();
-    $('#main-content').show();
-    $('#auth-header').hide();
-    $('#navbar').show();
-    $('#landing-page').hide();
-}
-
-
-
-
-function onUserLoggedIn(user) {
-    var floatingDiv = document.getElementById('floating-div');
-    var authContainer = document.getElementById('auth-container');
-    var logoutButton = document.getElementById('logout-button');
-    var navbar = document.getElementById('navbar');
-    var registerSection = document.getElementById('register-section');
-    var toggleAuthButton = document.getElementById('toggle-auth');
-    var accountImg = document.getElementById('accountImg');
-    var accountMenu = document.getElementById('account-menu');
-    var landingPageImg = document.getElementById('landingPage');
-    var signInLink = document.getElementById('signin-link');
-    var landingPageDiv = document.getElementById('landing-page');
-    var loginSectionDiv = document.getElementById('login-section');
-
-    if (authContainer) authContainer.style.display = 'none';
-    if (logoutButton) logoutButton.style.display = 'block';
-    if (navbar) navbar.style.display = 'flex';
-    if (toggleAuthButton) toggleAuthButton.style.display = 'none';
-    if (registerSection) registerSection.style.display = 'none';
-    if (signInLink) signInLink.style.display = 'none';
-    if (accountImg) accountImg.style.display = 'block';
-    if (accountMenu) accountMenu.style.display = 'none';
-    if (landingPageImg) landingPageImg.style.display = 'none';
-    if (floatingDiv) floatingDiv.style.display = 'none';
-    if (landingPageDiv) landingPageDiv.style.display = 'none';
-    if (loginSectionDiv) loginSectionDiv.style.display = 'none';
-
-    clearUserData()
-    loadLifeEventsFromDatabase(user.uid);
-    loadBirthDateFromDatabase(user.uid);
-
-    updateLegend();
-    updateUserName();
-    createWeekLabels();
-    createYearLabels(100);
-}
-
-
-
-$('#login-button').click(() => {
-    const email = $('#login-email').val();
-    const password = $('#login-password').val();
-    if (email && password) {
-        loginUser(email, password);
-    } else {
-        console.error('Email or password is missing');
-    }
-});
-
-$('#logout-button').click(logoutUser);
-
+// Firebase Functions
 function saveLifeEventsToDatabase(userId, lifeEvents) {
     database.ref('users/' + userId + '/lifeEvents').set(lifeEvents);
 }
@@ -563,19 +250,17 @@ function loadLifeEventsFromDatabase(userId) {
     database.ref('users/' + userId + '/lifeEvents').once('value').then((snapshot) => {
         const events = snapshot.val();
         if (events) {
-            lifeEvents = events.map(event => {
-                if (isValidDateString(event.start) && isValidDateString(event.end)) {
-                    return {
-                        ...event,
-                        start: new Date(event.start),
-                        end: new Date(event.end)
-                    };
-                } else {
-                    console.error('Invalid event date:', event);
-                    return null; // or handle it differently
-                }
-            }).filter(event => event != null); // Remove invalid events
-            eventCounter = lifeEvents.reduce((max, event) => Math.max(max, parseInt(event.id.replace('event-', ''))), 0) + 1;
+            lifeEvents = events.map(event => ({
+                ...event,
+                start: new Date(event.start),
+                end: new Date(event.end)
+            })).filter(event => !isNaN(event.start) && !isNaN(event.end));
+            
+            eventCounter = lifeEvents.reduce((max, event) => {
+                const currentNum = parseInt(event.id.replace('event-', ''));
+                return Math.max(max, currentNum);
+            }, 0) + 1;
+            
             createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
             updateLegend();
             updateFloatingDivWithEvents();
@@ -583,11 +268,6 @@ function loadLifeEventsFromDatabase(userId) {
     }).catch(error => {
         console.error('Error loading life events:', error);
     });
-}
-
-function isValidDateString(dateStr) {
-    const date = new Date(dateStr);
-    return !isNaN(date);
 }
 
 function saveBirthDateToDatabase(userId, birthDate) {
@@ -604,129 +284,187 @@ function loadBirthDateFromDatabase(userId) {
         }
     });
 }
-function addEvent() {
-    const eventNameId = 'event-name-' + eventCounter;
-    const eventStartId = 'event-start-' + eventCounter;
-    const eventEndId = 'event-end-' + eventCounter;
-    const eventColorId = 'event-color-' + eventCounter;
 
-    const eventGroup = $('<div/>', { class: 'event-group' }).appendTo("#floating-div");
+// Authentication Functions
+function registerUser() {
+    const email = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
+    if (email && password) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                onUserLoggedIn(userCredential.user);
+            })
+            .catch((error) => {
+                showError('Registration failed: ' + error.message);
+            });
+    } else {
+        showError('Please enter both email and password.');
+    }
+}
 
-    // Name and color container
-    const nameColorContainer = $('<div/>', { class: 'name-color-container' }).appendTo(eventGroup);
-    $('<input/>', { type: 'text', id: eventNameId, placeholder: 'Event Name' }).appendTo(nameColorContainer);
-    $('<input/>', { type: 'color', id: eventColorId }).appendTo(nameColorContainer);
+window.loginUser = function() {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const landingPageDiv = document.getElementById('landing-page');
 
-    // Date container
-    const dateContainer = $('<div/>', { class: 'date-container' }).appendTo(eventGroup);
-    $('<input/>', { type: 'date', class: 'date-picker', id: eventStartId, placeholder: 'From' }).appendTo(dateContainer);
-    $('<input/>', { type: 'date', class: 'date-picker', id: eventEndId, placeholder: 'To' }).appendTo(dateContainer);
+    if (landingPageDiv) landingPageDiv.style.display = 'none';
 
-    // Add buttons
-    $('<button/>', { text: 'Save Event', class: 'submit-event', click: function () { addOrUpdateEvent(eventCounter); } }).appendTo(eventGroup);
-    // Inside addEvent function
-    $('<button/>', {
-        text: 'x',
-        class: 'remove-event',
-        click: function (e) {
-            e.stopPropagation();
-            removeEvent('event-' + eventCounter);
+    if (email && password) {
+        auth.signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                onUserLoggedIn(userCredential.user);
+            })
+            .catch((error) => {
+                showError('Login failed: ' + error.message);
+            });
+    } else {
+        showError('Email or password is missing - please try again');
+    }
+}
+
+window.logoutUser = function() {
+    auth.signOut().then(() => {
+        handleLoggedOutState();
+    }).catch((error) => {
+        showError('Logout failed: ' + error.message);
+    });
+}
+
+// UI State Management
+function onUserLoggedIn(user) {
+    const elements = {
+        authContainer: document.getElementById('auth-container'),
+        logoutButton: document.getElementById('logout-button'),
+        navbar: document.getElementById('navbar'),
+        registerSection: document.getElementById('register-section'),
+        toggleAuthButton: document.getElementById('toggle-auth'),
+        accountImg: document.getElementById('accountImg'),
+        accountMenu: document.getElementById('account-menu'),
+        landingPageImg: document.getElementById('landingPage'),
+        signInLink: document.getElementById('signin-link'),
+        landingPageDiv: document.getElementById('landing-page'),
+        loginSectionDiv: document.getElementById('login-section'),
+        floatingDiv: document.getElementById('floating-div'),
+        mainContent: document.getElementById('main-content')
+    };
+
+    // Update UI elements visibility
+    Object.entries({
+        authContainer: 'none',
+        logoutButton: 'block',
+        navbar: 'flex',
+        registerSection: 'none',
+        toggleAuthButton: 'none',
+        signInLink: 'none',
+        accountImg: 'block',
+        accountMenu: 'none',
+        landingPageImg: 'none',
+        landingPageDiv: 'none',
+        loginSectionDiv: 'none',
+        mainContent: 'block'
+    }).forEach(([elementKey, displayValue]) => {
+        if (elements[elementKey]) {
+            elements[elementKey].style.display = displayValue;
         }
-    }).appendTo(eventGroup);
-    // Setup date picker
-    $('#' + eventStartId + ', #' + eventEndId).datepicker({
-        dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true, yearRange: '1900:' + new Date().getFullYear()
     });
+
+    clearUserData();
+    loadLifeEventsFromDatabase(user.uid);
+    loadBirthDateFromDatabase(user.uid);
+
+    updateLegend();
+    updateUserName();
+    createWeekLabels();
+    createYearLabels(100);
 }
 
+function handleLoggedOutState() {
+    const elements = {
+        mainContent: document.getElementById('main-content'),
+        navbar: document.getElementById('navbar'),
+        navbarUserInfo: document.getElementById('user-info'),
+        authContainer: document.getElementById('auth-container'),
+        loginSection: document.getElementById('login-section'),
+        registerSection: document.getElementById('register-section'),
+        toggleAuth: document.getElementById('toggle-auth'),
+        logoutButton: document.getElementById('logout-button'),
+        loginContainer: document.getElementById('login-container'),
+        signInLink: document.getElementById('signin-link'),
+        accountImg: document.getElementById('accountImg'),
+        accountMenu: document.getElementById('account-menu'),
+        landingPage: document.getElementById('landingPage'),
+        landingPageDiv: document.getElementById('landing-page')
+    };
 
-function updateFloatingDivWithEvents() {
-    $('#floating-div').empty();
-    lifeEvents.forEach(event => {
-        const eventGroup = $('<div/>', { class: 'event-group', id: event.id }).appendTo("#floating-div");
-
-        // Name and color container
-        const nameColorContainer = $('<div/>', { class: 'name-color-container' }).appendTo(eventGroup);
-        $('<input/>', { type: 'text', value: event.name, readonly: true }).appendTo(nameColorContainer);
-        $('<input/>', { type: 'color', value: event.color, readonly: true }).appendTo(nameColorContainer);
-
-        // Date container
-        const dateContainer = $('<div/>', { class: 'date-container' }).appendTo(eventGroup);
-        $('<input/>', { type: 'date', class: 'date-picker', value: formatDate(event.start), readonly: true }).appendTo(dateContainer);
-        $('<input/>', { type: 'date', class: 'date-picker', value: formatDate(event.end), readonly: true }).appendTo(dateContainer);
-
-        // Delete button
-        $('<button/>', { text: 'x', class: 'remove-event', 'data-event-id': event.id }).appendTo(eventGroup);
+    // Update UI elements visibility
+    Object.entries({
+        mainContent: 'none',
+        navbar: 'none',
+        loginSection: 'block',
+        registerSection: 'none',
+        logoutButton: 'none',
+        signInLink: 'none',
+        accountImg: 'block',
+        accountMenu: 'none',
+        landingPage: 'flex',
+        landingPageDiv: 'flex'
+    }).forEach(([elementKey, displayValue]) => {
+        if (elements[elementKey]) {
+            elements[elementKey].style.display = displayValue;
+        }
     });
-    attachDeleteEventListeners();
-    addAddEventButton();
-}
-function attachDeleteEventListeners() {
-    $('.remove-event').off('click').on('click', function (e) {
-        e.stopPropagation();
-        const eventId = $(this).data('event-id');
-        removeEvent(eventId);
-    });
-}
 
-function addAddEventButton() {
-    const addEventButtonHtml = `<div id="add-event-btn" title="Add life event">+</div>`;
-    $('#floating-div').append(addEventButtonHtml);
+    if (elements.landingPageDiv) {
+        elements.landingPageDiv.style.flexDirection = 'row-reverse';
+        elements.landingPageDiv.style.alignItems = 'center';
+        elements.landingPageDiv.style.justifyContent = 'center';
+    }
 
-    // Attach the click event listener to the 'Add Event' button
-    $('#add-event-btn').off('click').on('click', function (e) {
-        e.stopPropagation();
-        addEvent(); // Function to handle adding a new event
-    });
+    if (elements.navbarUserInfo) {
+        elements.navbarUserInfo.innerHTML = '';
+    }
+
+    lifeEvents = [];
+    updateLegend();
+    updateUserName();
+    clearUserData();
 }
 
-lifeEvents.forEach((event, index) => {
-    const eventHtml = `
-        <div class="event-group" id="event-${index}">
-            <input type="text" value="${event.name}" placeholder="Event Name" readonly>
-            <input type="text" value="${formatDate(event.start)}" class="date-picker" placeholder="From" readonly>
-            <input type="text" value="${formatDate(event.end)}" class="date-picker" placeholder="To" readonly>
-            <input type="color" value="${event.color}" readonly>
-            <button class="remove-event" data-event-id="${index}">x</button>
-        </div>
-    `;
-    $('#floating-div').append(eventHtml);
-});
+// Helper Functions
+function clearUserData() {
+    const birthdateInput = document.getElementById('birthdate');
+    if (birthdateInput) {
+        birthdateInput.value = '';
+    }
 
-// Attach click event listeners to the 'Remove Event' buttons
-$('.remove-event').off('click').on('click', function (e) {
-    e.stopPropagation();
-    const eventId = $(this).data('event-id');
-    removeEvent(eventId); // Function to handle removing an event
-});
+    lifeEvents = [];
+    const chartContainer = document.getElementById('chart-container');
+    if (chartContainer) {
+        chartContainer.innerHTML = '';
+    }
+    
+    updateLegend();
+}
+
 function updateLegend() {
     const legendContainer = document.getElementById('events-legend');
-    if (!legendContainer) {
-        console.error('Legend container not found');
-        return;
-    }
-    legendContainer.innerHTML = ''; // Clear existing legend items
-
+    if (!legendContainer) return;
+    
+    legendContainer.innerHTML = '';
     lifeEvents.forEach(event => {
-        // Create the container for each legend item
         const legendItem = document.createElement('div');
         legendItem.classList.add('event-legend-item');
 
-        // Create the color indicator
         const colorIndicator = document.createElement('div');
         colorIndicator.classList.add('event-color-indicator');
         colorIndicator.style.backgroundColor = event.color;
 
-        // Create the event name text
         const eventName = document.createElement('span');
         eventName.classList.add('event-name');
         eventName.textContent = event.name;
 
-        // Append color indicator and event name to the legend item
         legendItem.appendChild(colorIndicator);
         legendItem.appendChild(eventName);
-
-        // Append the legend item to the legend container
         legendContainer.appendChild(legendItem);
     });
 }
@@ -740,31 +478,65 @@ function updateUserName() {
         if (userNameElement) {
             userNameElement.textContent = userName;
         }
-        else {
-            console.error('User name element not found');
-        }
     }
 }
-// Call these functions whenever the life events update or user logs in/out
 
-
-
-
-window.printContent = function () {
-    window.print();
+function toggleAuthMode() {
+    const loginSection = document.getElementById('login-section');
+    const registerSection = document.getElementById('register-section');
+    
+    if (registerSection.style.display === 'none') {
+        loginSection.style.display = 'none';
+        registerSection.style.display = 'block';
+    } else {
+        loginSection.style.display = 'block';
+        registerSection.style.display = 'none';
+    }
 }
 
-const clarityScaleFactor = window.devicePixelRatio || 4;
+function showError(message) {
+    let errorContainer = document.getElementById('error-message');
+    if (!errorContainer) {
+        errorContainer = document.createElement('div');
+        errorContainer.id = 'error-message';
+        errorContainer.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: red;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+            display: none;
+        `;
+        document.body.appendChild(errorContainer);
+    }
+    
+    errorContainer.textContent = message;
+    errorContainer.style.display = 'block';
+    
+    setTimeout(() => {
+        errorContainer.style.display = 'none';
+    }, 3000);
+}
 
- window.downloadImage = function() {
+// Image Download Function
+window.downloadImage = function() {
     const content = document.getElementById('main-content');
-
+    const clarityScaleFactor = window.devicePixelRatio || 4;
     const originalWidth = content.style.width;
-    content.style.width = '1000px'
+    content.style.width = '1000px';
+    
     const yearTextLabel = document.getElementById('year-text-label');
     const originalTransform = yearTextLabel.style.transform;
     yearTextLabel.style.transform = 'translateY(-50%) rotate(-90deg)';
-    html2canvas(content, { scale: clarityScaleFactor, useCORS: true }).then(canvas => {
+    
+    html2canvas(content, {
+        scale: clarityScaleFactor,
+        useCORS: true
+    }).then(canvas => {
         if (canvas) {
             const link = document.createElement('a');
             link.download = 'my-life-in-weeks.png';
@@ -773,22 +545,118 @@ const clarityScaleFactor = window.devicePixelRatio || 4;
             link.click();
             document.body.removeChild(link);
         }
-
     }).catch(error => {
         content.style.width = originalWidth;
-        console.error('Error generating image:', error);
-
+        showError('Error generating image: ' + error.message);
     });
+    
     yearTextLabel.style.transform = originalTransform;
 }
 
+// Life Events Toggle
+window.toggleLifeEvent = function() {
+    const floatingDiv = document.getElementById('floating-div');
+    floatingDiv.style.display = floatingDiv.style.display === 'none' ? 'block' : 'none';
+}
 
- window.toggleLifeEvent = function() {
-    var floatingDiv = document.getElementById('floating-div');
-    if (floatingDiv.style.display === 'none' || !floatingDiv.style.display) {
-        floatingDiv.style.display = 'block';
-    } else {
-        floatingDiv.style.display = 'none';
+// Initialize the app
+function initializeApp() {
+    const chartContainer = document.getElementById('chart-container');
+    createEmptyWeekBoxes(chartContainer, 90);
+}
+
+function createEmptyWeekBoxes(container, totalYears) {
+    container.innerHTML = '';
+    const weeksPerYear = 52;
+    for (let year = 0; year < totalYears; year++) {
+        const yearContainer = document.createElement('div');
+        yearContainer.classList.add('year-container');
+        for (let week = 0; week < weeksPerYear; week++) {
+            const weekBox = document.createElement('div');
+            weekBox.classList.add('week-box', 'unlived');
+            yearContainer.appendChild(weekBox);
+        }
+        container.appendChild(yearContainer);
     }
-};
+}
 
+function updateFloatingDivWithEvents() {
+    $('#floating-div').empty();
+    
+    // Add title
+    $('<h3>Life Events</h3>').appendTo('#floating-div');
+    
+    lifeEvents.forEach(event => {
+        const eventGroup = $('<div/>', {
+            class: 'event-group',
+            id: event.id
+        }).appendTo("#floating-div");
+
+        // Name and color container
+        const nameColorContainer = $('<div/>', {
+            class: 'name-color-container'
+        }).appendTo(eventGroup);
+
+        $('<input/>', {
+            type: 'text',
+            value: event.name,
+            readonly: true
+        }).appendTo(nameColorContainer);
+
+        $('<input/>', {
+            type: 'color',
+            value: event.color,
+            readonly: true
+        }).appendTo(nameColorContainer);
+
+        // Date container
+        const dateContainer = $('<div/>', {
+            class: 'date-container'
+        }).appendTo(eventGroup);
+
+        $('<input/>', {
+            type: 'date',
+            class: 'date-picker',
+            value: formatDate(event.start),
+            readonly: true
+        }).appendTo(dateContainer);
+
+        $('<input/>', {
+            type: 'date',
+            class: 'date-picker',
+            value: formatDate(event.end),
+            readonly: true
+        }).appendTo(dateContainer);
+
+        // Delete button
+        $('<button/>', {
+            text: 'x',
+            class: 'remove-event',
+            'data-event-id': event.id
+        }).appendTo(eventGroup);
+    });
+
+    attachDeleteEventListeners();
+    addAddEventButton();
+}
+
+function formatDate(date) {
+    return date.toISOString().slice(0, 10);
+}
+
+function attachDeleteEventListeners() {
+    $('.remove-event').off('click').on('click', function(e) {
+        e.stopPropagation();
+        const eventId = $(this).data('event-id');
+        removeEvent(eventId);
+    });
+}
+
+function addAddEventButton() {
+    $('<div/>', {
+        id: 'add-event-btn',
+        title: 'Add life event',
+        text: '+',
+        click: addEvent
+    }).appendTo('#floating-div');
+}
