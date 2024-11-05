@@ -291,19 +291,20 @@ p {
 
 #label-chart-wrapper {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: flex-start;
     width: 100%;
-    margin-top: -20px;
-    flex-grow: 1;
 }
 
 #years-labels-container {
-    margin-top: -45px;
-    margin-right: 5px;
-    order: -1;
-    width: 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
     color: white;
+}
+
+.year-label-spacer {
+    height: 15px; /* Same as .year-label height */
 }
 
 .yearLabel {
@@ -311,15 +312,17 @@ p {
 }
 
 .year-label {
-    height: 155px;
-    margin-top: -25px;
+    height: 15px; /* Adjust to match grid row height */
     display: flex;
     align-items: center;
     justify-content: flex-end;
     font-size: 10px;
-    color: white;
+    padding-right: 5px;
 }
 
+#years-labels-container, .year-label {
+    margin-top: 0;
+}
 #week-labels-container {
     display: flex;
     justify-content: center;
@@ -348,11 +351,16 @@ p {
 
 #parent-container {
     display: flex;
-    justify-content: center;
     align-items: flex-start;
-    position: relative;
-    padding: 20px;
-    color: white;
+    width: 100%;
+}
+
+/* Left labels wrapper for the "Years" label and years numbers */
+#left-labels-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-right: 10px; /* Adjust spacing as needed */
 }
 
 #chart-container {
@@ -435,21 +443,13 @@ p {
 }
 
 #year-text-label {
-    position: absolute;
-    top: 0;
-    transform: translateY(-50%) rotate(180deg);
-    writing-mode: vertical-rl;
-    transform-origin: left;
-    padding: 8px;
-    font-size: 18px;
-    white-space: nowrap;
-    margin-top: 350px;
-    margin-left: -700px;
-    font-size:  1.3rem;
-    color:whitesmoke;
-    animation: 1000ms ease 0.5s 1 normal forwards running kitpAN;
+    position: static;
+    top: auto;
+    left: auto;
+    transform: none;
+    transform-origin: none;
+    animation: none;
 }
-
 #add-event-btn:hover {
     background-color: #04c204;
 }

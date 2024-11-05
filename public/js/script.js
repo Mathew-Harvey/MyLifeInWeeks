@@ -141,7 +141,7 @@ function toggleAuthMode(mode) {
         const isLogin = loginSection.style.display === 'none';
         loginSection.style.display = isLogin ? 'block' : 'none';
         registerSection.style.display = isLogin ? 'none' : 'block';
-        
+
         // Update signin link text
         if (signinLink) {
             signinLink.textContent = isLogin ? 'Register' : 'Sign in';
@@ -150,7 +150,7 @@ function toggleAuthMode(mode) {
         // Set specific mode
         loginSection.style.display = mode === 'login' ? 'block' : 'none';
         registerSection.style.display = mode === 'login' ? 'none' : 'block';
-        
+
         // Update signin link text based on mode
         if (signinLink) {
             signinLink.textContent = mode === 'login' ? 'Sign in' : 'Register';
@@ -352,11 +352,11 @@ function handleLoggedOutState() {
     document.getElementById('register-section').style.display = 'none';
     document.getElementById('account-container').style.display = 'none';
 
-        // Show signin link
-        const signinLink = document.getElementById('signin-link');
-        if (signinLink) {
-            signinLink.style.display = 'block';
-        }
+    // Show signin link
+    const signinLink = document.getElementById('signin-link');
+    if (signinLink) {
+        signinLink.style.display = 'block';
+    }
     // Update all auth-related text
     updateAuthText(false);
 
@@ -482,11 +482,19 @@ function createYearLabels(totalYears) {
     if (!yearsLabelsContainer) return;
 
     yearsLabelsContainer.innerHTML = '';
-    for (let i = 0; i < totalYears; i += 10) {
-        const yearLabel = document.createElement('div');
-        yearLabel.classList.add('year-label');
-        yearLabel.textContent = i;
-        yearsLabelsContainer.appendChild(yearLabel);
+    for (let i = 0; i < totalYears; i++) {
+        // Only add a label every 10 years
+        if (i % 10 === 0) {
+            const yearLabel = document.createElement('div');
+            yearLabel.classList.add('year-label');
+            yearLabel.textContent = i;
+            yearsLabelsContainer.appendChild(yearLabel);
+        } else {
+            // Add empty spacers to maintain alignment
+            const spacer = document.createElement('div');
+            spacer.classList.add('year-label-spacer');
+            yearsLabelsContainer.appendChild(spacer);
+        }
     }
 }
 
