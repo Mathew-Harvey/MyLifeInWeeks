@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css" />
 </head>
+
 <body>
     <!-- Navigation Bar -->
     <nav id="new-navbar">
@@ -19,13 +21,16 @@
         <div id="nav-links">
             <a href="#" style="margin-right: 20px; text-decoration: none; color: #ffffff;">Our why</a>
             <a href="#" style="margin-right: 20px; text-decoration: none; color: #ffffff;">About</a>
-            <a href="#" id="signin-link" onclick="showLogin()" style="text-decoration: none; color: #ffffff;">Sign in</a>
-            <div id="account-container" style="display: flex; align-items: center; position: relative;">
-                <img src="./images/AccountProfile.png" id="accountImg" alt="my account" 
-                     style="cursor: pointer; padding: 10px;">
+            <a href="#" id="signin-link" onclick="showLogin()" style="text-decoration: none; color: #ffffff;">Sign
+                in</a>
+
+            <div id="account-container" style="display: none;">
+                <img src="./images/AccountProfile.png" id="accountImg" alt="my account"
+                    style="cursor: pointer; padding: 10px;">
                 <div id="account-menu" class="account-menu">
                     <a href="#" id="accountPage" style="display: block; margin-bottom: 10px;">Account</a>
-                    <a href="#" id="downloadLife" onclick="downloadImage()" style="display: block; margin-bottom: 10px;">Download Life</a>
+                    <a href="#" id="downloadLife" onclick="downloadImage()"
+                        style="display: block; margin-bottom: 10px;">Download Life</a>
                     <a href="#" style="display: block; margin-bottom: 10px;">Contact Support</a>
                     <hr>
                     <a href="#" id="logout-link" onclick="window.logoutUser()">Logout</a>
@@ -34,38 +39,38 @@
         </div>
     </nav>
 
-<!-- Replace the current landing-page div with this updated version -->
-<div id="landing-page">
-    <div class="image-bloom-container">
-        <img src="./images/landingPage.png" id="landingPage" alt="Landing Page Image">
-    </div>
-    
-    <!-- Login Section -->
-    <div id="login-section">
-        <h1>Bringing life into perspective</h1>
-        <h3 id="lifeShortText">Life is short, What's your next move?</h3>
-        <h2>Login</h2>
-        <form id="login-form">
-            <input type="email" id="login-email" placeholder="Email" required>
-            <input type="password" id="login-password" placeholder="Password" required>
-            <button type="submit">Login</button>
-            <button type="button" onclick="toggleAuthMode()">I want to register</button>
-        </form>
-    </div>
+    <!-- Replace the current landing-page div with this updated version -->
+    <div id="landing-page">
+        <div class="image-bloom-container">
+            <img src="./images/landingPage.png" id="landingPage" alt="Landing Page Image">
+        </div>
 
-    <!-- Register Section -->
-    <div id="register-section">
-        <h1>Bringing life into perspective</h1>
-        <h3 id="lifeShortText">Life is short, What's your next move?</h3>
-        <h2>Register</h2>
-        <form id="register-form">
-            <input type="email" id="register-email" placeholder="Email" required>
-            <input type="password" id="register-password" placeholder="Password" required>
-            <button type="submit">Register</button>
-            <button type="button" onclick="toggleAuthMode()">I want to login</button>
-        </form>
+        <!-- Login Section -->
+        <div id="login-section">
+            <h1>Bringing life into perspective</h1>
+            <h3 id="lifeShortText">Life is short, What's your next move?</h3>
+            <h2>Login</h2>
+            <form id="login-form">
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button type="submit">Login</button>
+                <button type="button" onclick="toggleAuthMode()">I want to register</button>
+            </form>
+        </div>
+
+        <!-- Register Section -->
+        <div id="register-section">
+            <h1>Bringing life into perspective</h1>
+            <h3 id="lifeShortText">Life is short, What's your next move?</h3>
+            <h2>Register</h2>
+            <form id="register-form">
+                <input type="email" id="register-email" placeholder="Email" required>
+                <input type="password" id="register-password" placeholder="Password" required>
+                <button type="submit">Register</button>
+                <button type="button" onclick="toggleAuthMode()">I want to login</button>
+            </form>
+        </div>
     </div>
-</div>
     <!-- Main Content -->
     <div id="main-content" style="display: none;">
         <header>
@@ -113,4 +118,5 @@
     <script src="./js/firebaseConfig.js"></script>
     <script src="./js/script.js"></script>
 </body>
+
 </html>

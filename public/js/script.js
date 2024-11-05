@@ -9,7 +9,23 @@ let lifeEvents = [];
 let totalWeeksLived = 0;
 let birthDate = null;
 
-// Wait for document to be ready to ensure Firebase config is loaded
+// Update the initializeAuthObserver function
+function initializeAuthObserver() {
+    firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+            // User is signed in
+            onUserLoggedIn(user);
+        } else {
+            // Only handle logout state if it's not the initial check
+            if (!isInitialAuthCheck) {
+                handleLoggedOutState();
+            }
+        }
+        // Set initial check to false after first run
+        isInitialAuthCheck = false;
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     try {
         // Initialize Firebase
@@ -19,13 +35,20 @@ document.addEventListener('DOMContentLoaded', function () {
         auth = firebase.auth();
         database = firebase.database();
 
+        // Set persistence to LOCAL
+        firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+            .then(() => {
+                // Initialize auth observer after setting persistence
+                initializeAuthObserver();
+            })
+            .catch((error) => {
+                console.error('Persistence error:', error);
+            });
+
         // Initialize UI components
         if ($("#floating-div").length) {
             $("#floating-div").draggable({ containment: "window" });
         }
-
-        // Show login section by default
-        toggleAuthMode('login');
 
         // Set up event listeners
         setupEventListeners();
@@ -33,37 +56,12 @@ document.addEventListener('DOMContentLoaded', function () {
         // Set up account menu
         setupAccountMenu();
 
-        // Initialize Firebase auth state observer
-        initializeAuthObserver();
-
         // Initialize the empty chart
         initializeApp();
     } catch (error) {
         console.error('Firebase initialization error:', error);
         showError('Failed to initialize application. Please try again later.');
     }
-});
-
-
-
-// Document Ready Handler
-document.addEventListener('DOMContentLoaded', function () {
-    // Show login section by default
-    toggleAuthMode('login');
-
-    // Initialize UI components
-    if ($("#floating-div").length) {
-        $("#floating-div").draggable({ containment: "window" });
-    }
-
-    // Set up event listeners
-    setupEventListeners();
-
-    // Initialize Firebase auth state observer
-    initializeAuthObserver();
-
-    // Initialize the empty chart
-    initializeApp();
 });
 
 // Event Listeners Setup
@@ -84,88 +82,83 @@ function setupEventListeners() {
     document.getElementById('add-event-btn')?.addEventListener('click', addEvent);
     document.getElementById('toggle-life-events')?.addEventListener('click', toggleLifeEvent);
 
-    // Account menu toggle
-    document.getElementById('accountImg')?.addEventListener('click', function () {
-        const accountMenu = document.getElementById('account-menu');
-        if (accountMenu) {
-            accountMenu.style.display = accountMenu.style.display === 'block' ? 'none' : 'block';
+}
+
+// Update your setupAccountMenu function
+function setupAccountMenu() {
+    const accountImg = document.getElementById('accountImg');
+    const accountMenu = document.getElementById('account-menu');
+
+    if (!accountImg || !accountMenu) {
+        console.error('Account menu elements not found');
+        return;
+    }
+
+    // Toggle menu on click
+    accountImg.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const isVisible = accountMenu.style.display === 'block';
+        accountMenu.style.display = isVisible ? 'none' : 'block';
+        console.log('Menu visibility:', !isVisible);
+    });
+
+    // Close menu when clicking outside - MOVE THIS INSIDE setupAccountMenu
+    document.addEventListener('click', function (e) {
+        if (accountMenu && !accountMenu.contains(e.target) && e.target !== accountImg) {
+            accountMenu.style.display = 'none';
         }
     });
 }
 
-// Update the account menu handling
-function setupAccountMenu() {
-    const accountImg = document.getElementById('accountImg');
-    const accountMenu = document.getElementById('account-menu');
-    let menuTimeout;
-
-    if (accountImg && accountMenu) {
-        // Show menu on click
-        accountImg.addEventListener('click', function (e) {
-            e.stopPropagation();
-            const isVisible = accountMenu.style.display === 'block';
-            accountMenu.style.display = isVisible ? 'none' : 'block';
-        });
-
-        // Handle menu hover
-        accountMenu.addEventListener('mouseenter', function () {
-            clearTimeout(menuTimeout);
-        });
-
-        accountMenu.addEventListener('mouseleave', function () {
-            menuTimeout = setTimeout(() => {
-                accountMenu.style.display = 'none';
-            }, 300);
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', function (e) {
-            if (!accountMenu.contains(e.target) && e.target !== accountImg) {
-                accountMenu.style.display = 'none';
-            }
-        });
-    }
-}
 
 
 // Auth State Observer
 function initializeAuthObserver() {
     firebase.auth().onAuthStateChanged(function (user) {
-        if (user && !isInitialAuthCheck) {
+        if (user) {
+            // User is signed in
             onUserLoggedIn(user);
         } else {
-            // Force logout on initial load
-            if (isInitialAuthCheck) {
-                firebase.auth().signOut().then(() => {
-                    handleLoggedOutState();
-                    isInitialAuthCheck = false;
-                });
-            } else {
+            // Only handle logout state if it's not the initial check
+            if (!isInitialAuthCheck) {
                 handleLoggedOutState();
-                isInitialAuthCheck = false;
             }
         }
+        // Set initial check to false after first run
+        isInitialAuthCheck = false;
     });
 }
 // Authentication Functions
 function toggleAuthMode(mode) {
     const loginSection = document.getElementById('login-section');
     const registerSection = document.getElementById('register-section');
+    const signinLink = document.getElementById('signin-link');
 
     if (!loginSection || !registerSection) return;
 
     if (!mode) {
         // Toggle between modes
-        loginSection.style.display = loginSection.style.display === 'none' ? 'block' : 'none';
-        registerSection.style.display = registerSection.style.display === 'none' ? 'block' : 'none';
+        const isLogin = loginSection.style.display === 'none';
+        loginSection.style.display = isLogin ? 'block' : 'none';
+        registerSection.style.display = isLogin ? 'none' : 'block';
+        
+        // Update signin link text
+        if (signinLink) {
+            signinLink.textContent = isLogin ? 'Register' : 'Sign in';
+        }
     } else {
         // Set specific mode
         loginSection.style.display = mode === 'login' ? 'block' : 'none';
         registerSection.style.display = mode === 'login' ? 'none' : 'block';
+        
+        // Update signin link text based on mode
+        if (signinLink) {
+            signinLink.textContent = mode === 'login' ? 'Sign in' : 'Register';
+        }
     }
 }
-
 // Also update the login function with better error handling
+// Update the loginUser function
 function loginUser() {
     const email = document.getElementById('login-email')?.value;
     const password = document.getElementById('login-password')?.value;
@@ -182,7 +175,11 @@ function loginUser() {
         submitButton.textContent = 'Logging in...';
     }
 
-    auth.signInWithEmailAndPassword(email, password)
+    // Set persistence before signing in
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        .then(() => {
+            return auth.signInWithEmailAndPassword(email, password);
+        })
         .then((userCredential) => {
             // Login successful
             document.getElementById('landing-page').style.display = 'none';
@@ -216,7 +213,6 @@ function loginUser() {
             }
         });
 }
-
 function registerUser() {
     const email = document.getElementById('register-email')?.value;
     const password = document.getElementById('register-password')?.value;
@@ -249,10 +245,13 @@ function registerUser() {
 
     auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
-            // Registration successful
-            document.getElementById('landing-page').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-            onUserLoggedIn(userCredential.user);
+            // Initialize user data first
+            return initializeUserData(userCredential.user).then(() => {
+                // Then proceed with UI updates
+                document.getElementById('landing-page').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                onUserLoggedIn(userCredential.user);
+            });
         })
         .catch((error) => {
             let errorMessage = 'Registration failed: ';
@@ -282,13 +281,23 @@ function registerUser() {
             }
         });
 }
+
+// Update the logoutUser function
 function logoutUser() {
-    auth.signOut().then(() => {
-        handleLoggedOutState();
-    }).catch((error) => {
-        showError('Logout failed: ' + error.message);
-    });
+    // Show confirmation dialog
+    if (confirm('Are you sure you want to log out?')) {
+        auth.signOut().then(() => {
+            // Clear any cached data
+            clearUserData();
+
+            // Reset UI state
+            handleLoggedOutState();
+        }).catch((error) => {
+            showError('Logout failed: ' + error.message);
+        });
+    }
 }
+
 // Add this new function to handle auth text updates
 function updateAuthText(isLoggedIn) {
     const authLinks = document.querySelectorAll('[data-auth-text]');
@@ -315,6 +324,11 @@ function onUserLoggedIn(user) {
     document.getElementById('main-content').style.display = 'block';
     document.getElementById('account-container').style.display = 'flex';
 
+    // Hide signin link and show account menu
+    const signinLink = document.getElementById('signin-link');
+    if (signinLink) {
+        signinLink.style.display = 'none';
+    }
     // Update all auth-related text
     updateAuthText(true);
 
@@ -338,6 +352,11 @@ function handleLoggedOutState() {
     document.getElementById('register-section').style.display = 'none';
     document.getElementById('account-container').style.display = 'none';
 
+        // Show signin link
+        const signinLink = document.getElementById('signin-link');
+        if (signinLink) {
+            signinLink.style.display = 'block';
+        }
     // Update all auth-related text
     updateAuthText(false);
 
@@ -347,6 +366,25 @@ function handleLoggedOutState() {
     updateLegend();
 }
 // Firebase Data Functions
+
+function initializeUserData(user) {
+    if (!user) return;
+
+    const userData = {
+        email: user.email,
+        createdAt: firebase.database.ServerValue.TIMESTAMP,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP,
+        lifeEvents: [],
+        birthDate: null
+    };
+
+    return database.ref('users/' + user.uid).update(userData)
+        .catch(error => {
+            console.error('Error initializing user data:', error);
+            showError('Failed to initialize user data. Please try again.');
+        });
+}
+
 function loadLifeEventsFromDatabase(userId) {
     database.ref('users/' + userId + '/lifeEvents').once('value').then((snapshot) => {
         const events = snapshot.val();
@@ -371,8 +409,35 @@ function loadLifeEventsFromDatabase(userId) {
     });
 }
 
+// Update the saveLifeEventsToDatabase function
 function saveLifeEventsToDatabase(userId, events) {
-    database.ref('users/' + userId + '/lifeEvents').set(events);
+    if (!userId || !events) return;
+
+    const firebaseEvents = events.map(event => {
+        // Ensure dates are proper Date objects before conversion
+        const startDate = event.start instanceof Date ? event.start : new Date(event.start);
+        const endDate = event.end instanceof Date ? event.end : new Date(event.end);
+
+        // Check if dates are valid before converting
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            console.error('Invalid date found:', event);
+            throw new Error('Invalid date in event');
+        }
+
+        return {
+            ...event,
+            start: startDate.toISOString(),
+            end: endDate.toISOString()
+        };
+    });
+
+    return database.ref('users/' + userId).update({
+        lifeEvents: firebaseEvents,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+    }).catch(error => {
+        console.error('Error saving life events:', error);
+        showError('Failed to save life events. Please try again.');
+    });
 }
 
 function loadBirthDateFromDatabase(userId) {
@@ -387,7 +452,15 @@ function loadBirthDateFromDatabase(userId) {
 }
 
 function saveBirthDateToDatabase(userId, date) {
-    database.ref('users/' + userId + '/birthDate').set(date.toISOString());
+    if (!userId || !date) return;
+
+    return database.ref('users/' + userId).update({
+        birthDate: date.toISOString(),
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+    }).catch(error => {
+        console.error('Error saving birthdate:', error);
+        showError('Failed to save birth date. Please try again.');
+    });
 }
 
 // Week Labels and Chart Creation
@@ -557,37 +630,42 @@ function addOrUpdateEvent(counter) {
         return;
     }
 
-    const start = new Date(startStr);
-    const end = new Date(endStr);
+    try {
+        const start = new Date(startStr);
+        const end = new Date(endStr);
 
-    if (isNaN(start) || isNaN(end)) {
-        showError('Invalid event dates. Please enter valid dates.');
-        return;
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            showError('Invalid event dates. Please enter valid dates.');
+            return;
+        }
+
+        const eventIndex = lifeEvents.findIndex(e => e.id === `event-${counter}`);
+        if (eventIndex !== -1) {
+            lifeEvents[eventIndex] = { id: `event-${counter}`, name, start, end, color };
+        } else {
+            lifeEvents.push({ id: `event-${counter}`, name, start, end, color });
+        }
+
+        // Update UI
+        createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
+
+        // Save to Firebase if user is authenticated
+        if (auth.currentUser) {
+            saveLifeEventsToDatabase(auth.currentUser.uid, lifeEvents)
+                .then(() => {
+                    updateLegend();
+                    if (eventIndex === -1) eventCounter++;
+                    updateFloatingDivWithEvents();
+                })
+                .catch(error => {
+                    console.error('Error saving event:', error);
+                    showError('Failed to save event. Please try again.');
+                });
+        }
+    } catch (error) {
+        console.error('Error processing event:', error);
+        showError('Failed to process event. Please check your inputs and try again.');
     }
-
-    const eventIndex = lifeEvents.findIndex(e => e.id === `event-${counter}`);
-    if (eventIndex !== -1) {
-        lifeEvents[eventIndex] = { id: `event-${counter}`, name, start, end, color };
-    } else {
-        lifeEvents.push({ id: `event-${counter}`, name, start, end, color });
-    }
-
-    createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
-
-    if (auth.currentUser) {
-        const firebaseLifeEvents = lifeEvents.map(event => ({
-            ...event,
-            start: event.start.toISOString(),
-            end: event.end.toISOString()
-        }));
-        saveLifeEventsToDatabase(auth.currentUser.uid, firebaseLifeEvents);
-    }
-
-    updateLegend();
-    if (eventIndex === -1) {
-        eventCounter++;
-    }
-    updateFloatingDivWithEvents();
 }
 
 function removeEvent(eventId) {
