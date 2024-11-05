@@ -1,4 +1,9 @@
-
+header h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    width: 100%;
+}
 
 button {
     background: transparent !important; 
@@ -27,8 +32,9 @@ button:hover {
 
 
 body {
-    padding-top:200px !important;
+    padding-top:100px !important;
 }
+
 body,
 html {
     margin: 0;
@@ -671,11 +677,28 @@ p {
 .birthdate-section {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    padding: 1rem 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.birthdate-section p {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.birthdate-section input[type="date"] {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    color: white;
 }
 
 #main-content {
-    padding-top: 13rem !important;
+    padding-top: 6rem !important;
     width: 100%;
     max-width: 1200px;
     display: flex;
@@ -684,6 +707,19 @@ p {
     justify-content: center;
 }
 
+#toggle-life-events {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#toggle-life-events:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
 
 #toggle-auth {
     color: white;
