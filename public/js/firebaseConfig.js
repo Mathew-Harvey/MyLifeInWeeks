@@ -1,12 +1,11 @@
-const firebaseConfig = {
-        apiKey: process.env.APP_FIREBASE_API_KEY,
-        authDomain: process.env.APP_FIREBASE_AUTH_DOMAIN,
-        databaseURL: process.env.APP_FIREBASE_DATABASE_URL,
-        projectId: process.env.APP_FIREBASE_PROJECT_ID,
-        storageBucket: process.env.APP_FIREBASE_STORAGE_BUCKET,
-        messagingSenderId: process.env.APP_FIREBASE_MESSAGING_SENDER_ID,
-        appId: process.env.APP_FIREBASE_APP_ID,
-        measurementId: process.env.APP_FIREBASE_MEASUREMENT_ID
-};
-
-export default firebaseConfig;
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+window.firebaseConfig = {
+        apiKey: "AIzaSyDXdYWM6FFa82V1DN5ecl5V5KqMfWBpc18",
+        authDomain: "mylifeinweeks-6e743.firebaseapp.com",
+        databaseURL: "https://mylifeinweeks-6e743-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "mylifeinweeks-6e743",
+        storageBucket: "mylifeinweeks-6e743.appspot.com",
+        messagingSenderId: "72962197769",
+        appId: "1:72962197769:web:886cc755f32e9b3d6f6bd8",
+        measurementId: "G-6E144LFLGX"
+    };

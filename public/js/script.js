@@ -1,7 +1,7 @@
-// Initialize Firebase with config
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const database = firebase.database();
+// Initialize Firebase
+let auth;
+let database;
+let isInitialAuthCheck = true;
 
 // Global variables
 let eventCounter = 0;
@@ -9,38 +9,392 @@ let lifeEvents = [];
 let totalWeeksLived = 0;
 let birthDate = null;
 
+// Wait for document to be ready to ensure Firebase config is loaded
+document.addEventListener('DOMContentLoaded', function () {
+    try {
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        auth = firebase.auth();
+        database = firebase.database();
+
+        // Initialize UI components
+        if ($("#floating-div").length) {
+            $("#floating-div").draggable({ containment: "window" });
+        }
+
+        // Show login section by default
+        toggleAuthMode('login');
+
+        // Set up event listeners
+        setupEventListeners();
+
+        // Set up account menu
+        setupAccountMenu();
+
+        // Initialize Firebase auth state observer
+        initializeAuthObserver();
+
+        // Initialize the empty chart
+        initializeApp();
+    } catch (error) {
+        console.error('Firebase initialization error:', error);
+        showError('Failed to initialize application. Please try again later.');
+    }
+});
+
+
+
 // Document Ready Handler
-$(document).ready(function() {
-    $("#floating-div").draggable({ containment: "window" });
+document.addEventListener('DOMContentLoaded', function () {
+    // Show login section by default
+    toggleAuthMode('login');
+
+    // Initialize UI components
+    if ($("#floating-div").length) {
+        $("#floating-div").draggable({ containment: "window" });
+    }
+
+    // Set up event listeners
+    setupEventListeners();
+
+    // Initialize Firebase auth state observer
+    initializeAuthObserver();
+
+    // Initialize the empty chart
+    initializeApp();
+});
+
+// Event Listeners Setup
+function setupEventListeners() {
+    // Auth form submissions
+    document.getElementById('login-form')?.addEventListener('submit', function (e) {
+        e.preventDefault();
+        loginUser();
+    });
+
+    document.getElementById('register-form')?.addEventListener('submit', function (e) {
+        e.preventDefault();
+        registerUser();
+    });
+
+    // Other UI events
+    document.getElementById('birthdate')?.addEventListener('change', calculateAge);
+    document.getElementById('add-event-btn')?.addEventListener('click', addEvent);
+    document.getElementById('toggle-life-events')?.addEventListener('click', toggleLifeEvent);
+
+    // Account menu toggle
+    document.getElementById('accountImg')?.addEventListener('click', function () {
+        const accountMenu = document.getElementById('account-menu');
+        if (accountMenu) {
+            accountMenu.style.display = accountMenu.style.display === 'block' ? 'none' : 'block';
+        }
+    });
+}
+
+// Update the account menu handling
+function setupAccountMenu() {
+    const accountImg = document.getElementById('accountImg');
+    const accountMenu = document.getElementById('account-menu');
+    let menuTimeout;
+
+    if (accountImg && accountMenu) {
+        // Show menu on click
+        accountImg.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const isVisible = accountMenu.style.display === 'block';
+            accountMenu.style.display = isVisible ? 'none' : 'block';
+        });
+
+        // Handle menu hover
+        accountMenu.addEventListener('mouseenter', function () {
+            clearTimeout(menuTimeout);
+        });
+
+        accountMenu.addEventListener('mouseleave', function () {
+            menuTimeout = setTimeout(() => {
+                accountMenu.style.display = 'none';
+            }, 300);
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!accountMenu.contains(e.target) && e.target !== accountImg) {
+                accountMenu.style.display = 'none';
+            }
+        });
+    }
+}
+
+
+// Auth State Observer
+function initializeAuthObserver() {
+    firebase.auth().onAuthStateChanged(function (user) {
+        if (user && !isInitialAuthCheck) {
+            onUserLoggedIn(user);
+        } else {
+            // Force logout on initial load
+            if (isInitialAuthCheck) {
+                firebase.auth().signOut().then(() => {
+                    handleLoggedOutState();
+                    isInitialAuthCheck = false;
+                });
+            } else {
+                handleLoggedOutState();
+                isInitialAuthCheck = false;
+            }
+        }
+    });
+}
+// Authentication Functions
+function toggleAuthMode(mode) {
+    const loginSection = document.getElementById('login-section');
+    const registerSection = document.getElementById('register-section');
+
+    if (!loginSection || !registerSection) return;
+
+    if (!mode) {
+        // Toggle between modes
+        loginSection.style.display = loginSection.style.display === 'none' ? 'block' : 'none';
+        registerSection.style.display = registerSection.style.display === 'none' ? 'block' : 'none';
+    } else {
+        // Set specific mode
+        loginSection.style.display = mode === 'login' ? 'block' : 'none';
+        registerSection.style.display = mode === 'login' ? 'none' : 'block';
+    }
+}
+
+// Also update the login function with better error handling
+function loginUser() {
+    const email = document.getElementById('login-email')?.value;
+    const password = document.getElementById('login-password')?.value;
+
+    if (!email || !password) {
+        showError('Please enter both email and password');
+        return;
+    }
+
+    // Show loading state
+    const submitButton = document.querySelector('#login-form button[type="submit"]');
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Logging in...';
+    }
+
+    auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            // Login successful
+            document.getElementById('landing-page').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            document.getElementById('account-container').style.display = 'flex';
+            onUserLoggedIn(userCredential.user);
+        })
+        .catch((error) => {
+            let errorMessage = 'Login failed: ';
+            switch (error.code) {
+                case 'auth/invalid-email':
+                    errorMessage += 'Invalid email address';
+                    break;
+                case 'auth/user-disabled':
+                    errorMessage += 'This account has been disabled';
+                    break;
+                case 'auth/user-not-found':
+                case 'auth/wrong-password':
+                    errorMessage += 'Invalid email or password';
+                    break;
+                default:
+                    errorMessage += error.message;
+            }
+            showError(errorMessage);
+        })
+        .finally(() => {
+            // Reset button state
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Login';
+            }
+        });
+}
+
+function registerUser() {
+    const email = document.getElementById('register-email')?.value;
+    const password = document.getElementById('register-password')?.value;
+
+    // Input validation
+    if (!email || !password) {
+        showError('Please enter both email and password');
+        return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showError('Please enter a valid email address');
+        return;
+    }
+
+    // Password validation
+    if (password.length < 6) {
+        showError('Password must be at least 6 characters long');
+        return;
+    }
+
+    // Show loading state
+    const submitButton = document.querySelector('#register-form button[type="submit"]');
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Creating Account...';
+    }
+
+    auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            // Registration successful
+            document.getElementById('landing-page').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            onUserLoggedIn(userCredential.user);
+        })
+        .catch((error) => {
+            let errorMessage = 'Registration failed: ';
+            switch (error.code) {
+                case 'auth/email-already-in-use':
+                    errorMessage += 'This email is already registered';
+                    break;
+                case 'auth/invalid-email':
+                    errorMessage += 'Invalid email address';
+                    break;
+                case 'auth/operation-not-allowed':
+                    errorMessage += 'Email/password accounts are not enabled';
+                    break;
+                case 'auth/weak-password':
+                    errorMessage += 'Password is too weak. Must be at least 6 characters';
+                    break;
+                default:
+                    errorMessage += error.message;
+            }
+            showError(errorMessage);
+        })
+        .finally(() => {
+            // Reset button state
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Register';
+            }
+        });
+}
+function logoutUser() {
+    auth.signOut().then(() => {
+        handleLoggedOutState();
+    }).catch((error) => {
+        showError('Logout failed: ' + error.message);
+    });
+}
+// Add this new function to handle auth text updates
+function updateAuthText(isLoggedIn) {
+    const authLinks = document.querySelectorAll('[data-auth-text]');
+    authLinks.forEach(link => {
+        if (isLoggedIn) {
+            if (link.dataset.authText === 'login') {
+                link.style.display = 'none';
+            } else if (link.dataset.authText === 'logout') {
+                link.style.display = 'block';
+            }
+        } else {
+            if (link.dataset.authText === 'login') {
+                link.style.display = 'block';
+            } else if (link.dataset.authText === 'logout') {
+                link.style.display = 'none';
+            }
+        }
+    });
+}
+// UI State Management
+function onUserLoggedIn(user) {
+    // Update UI visibility
+    document.getElementById('landing-page').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    document.getElementById('account-container').style.display = 'flex';
+
+    // Update all auth-related text
+    updateAuthText(true);
+
+    // Clear and load user data
+    clearUserData();
+    loadLifeEventsFromDatabase(user.uid);
+    loadBirthDateFromDatabase(user.uid);
+
+    // Update UI components
     updateLegend();
     updateUserName();
     createWeekLabels();
     createYearLabels(100);
+}
 
-    // Event Listeners
-    $('#birthdate').change(calculateAge);
-    $('#add-event-btn').click(addEvent);
-    $('#accountImg').click(function() {
-        var accountMenu = document.getElementById('account-menu');
-        accountMenu.style.display = accountMenu.style.display === 'block' ? 'none' : 'block';
+function handleLoggedOutState() {
+    // Reset UI to initial state
+    document.getElementById('main-content').style.display = 'none';
+    document.getElementById('landing-page').style.display = 'flex';
+    document.getElementById('login-section').style.display = 'block';
+    document.getElementById('register-section').style.display = 'none';
+    document.getElementById('account-container').style.display = 'none';
+
+    // Update all auth-related text
+    updateAuthText(false);
+
+    // Clear user data
+    clearUserData();
+    lifeEvents = [];
+    updateLegend();
+}
+// Firebase Data Functions
+function loadLifeEventsFromDatabase(userId) {
+    database.ref('users/' + userId + '/lifeEvents').once('value').then((snapshot) => {
+        const events = snapshot.val();
+        if (events) {
+            lifeEvents = events.map(event => ({
+                ...event,
+                start: new Date(event.start),
+                end: new Date(event.end)
+            })).filter(event => !isNaN(event.start) && !isNaN(event.end));
+
+            eventCounter = lifeEvents.reduce((max, event) => {
+                const currentNum = parseInt(event.id.replace('event-', ''));
+                return Math.max(max, currentNum);
+            }, 0) + 1;
+
+            createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
+            updateLegend();
+            updateFloatingDivWithEvents();
+        }
+    }).catch(error => {
+        console.error('Error loading life events:', error);
     });
+}
 
-    // Auth state observer
-    firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-            onUserLoggedIn(user);
-        } else {
-            handleLoggedOutState();
+function saveLifeEventsToDatabase(userId, events) {
+    database.ref('users/' + userId + '/lifeEvents').set(events);
+}
+
+function loadBirthDateFromDatabase(userId) {
+    database.ref('users/' + userId + '/birthDate').once('value').then((snapshot) => {
+        const birthDateString = snapshot.val();
+        if (birthDateString) {
+            birthDate = new Date(birthDateString);
+            document.getElementById('birthdate').valueAsDate = birthDate;
+            calculateAge();
         }
     });
+}
 
-    toggleAuthMode();
-    initializeApp();
-});
+function saveBirthDateToDatabase(userId, date) {
+    database.ref('users/' + userId + '/birthDate').set(date.toISOString());
+}
 
-// Week and Year Labels
+// Week Labels and Chart Creation
 function createWeekLabels() {
     const weekLabelsContainer = document.getElementById('week-labels-container');
+    if (!weekLabelsContainer) return;
+
     weekLabelsContainer.innerHTML = '';
     for (let i = 1; i <= 52; i++) {
         const weekLabel = document.createElement('div');
@@ -52,6 +406,8 @@ function createWeekLabels() {
 
 function createYearLabels(totalYears) {
     const yearsLabelsContainer = document.getElementById('years-labels-container');
+    if (!yearsLabelsContainer) return;
+
     yearsLabelsContainer.innerHTML = '';
     for (let i = 0; i < totalYears; i += 10) {
         const yearLabel = document.createElement('div');
@@ -61,13 +417,14 @@ function createYearLabels(totalYears) {
     }
 }
 
-// Week Boxes Creation
 function createWeekBoxes(container, totalWeeksLived, totalYears) {
+    if (!container) return;
+
     container.innerHTML = '';
     const weeksPerYear = 52;
     let weeksCounter = 0;
     const today = new Date();
-    const currentWeek = Math.ceil((today - birthDate) / (7 * 24 * 60 * 60 * 1000));
+    const currentWeek = birthDate ? Math.ceil((today - birthDate) / (7 * 24 * 60 * 60 * 1000)) : 0;
 
     for (let year = 0; year < totalYears; year++) {
         const yearContainer = document.createElement('div');
@@ -88,7 +445,7 @@ function createWeekBoxes(container, totalWeeksLived, totalYears) {
 
             const weekBox = document.createElement('div');
             weekBox.classList.add('week-box');
-            
+
             if (weeksCounter < totalWeeksLived) {
                 weekBox.classList.add('lived');
             }
@@ -116,12 +473,15 @@ function createWeekBoxes(container, totalWeeksLived, totalYears) {
 
 // Age Calculation
 function calculateAge() {
-    const inputBirthDate = document.getElementById('birthdate').value;
+    const birthdateInput = document.getElementById('birthdate');
+    const inputBirthDate = birthdateInput?.value;
+
     if (inputBirthDate) {
         birthDate = new Date(inputBirthDate);
         const today = new Date();
         let age = today.getFullYear() - birthDate.getFullYear();
         const m = today.getMonth() - birthDate.getMonth();
+
         if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
             age--;
         }
@@ -142,7 +502,7 @@ function calculateAge() {
 // Life Events Management
 function addEvent() {
     const eventGroup = $('<div/>', { class: 'event-group' }).appendTo("#floating-div");
-    
+
     // Name and color container
     const nameColorContainer = $('<div/>', { class: 'name-color-container' }).appendTo(eventGroup);
     $('<input/>', {
@@ -174,12 +534,12 @@ function addEvent() {
     $('<button/>', {
         text: 'Save Event',
         class: 'submit-event',
-        click: function() { addOrUpdateEvent(eventCounter); }
+        click: function () { addOrUpdateEvent(eventCounter); }
     }).appendTo(eventGroup);
     $('<button/>', {
         text: 'x',
         class: 'remove-event',
-        click: function(e) {
+        click: function (e) {
             e.stopPropagation();
             removeEvent('event-' + eventCounter);
         }
@@ -191,6 +551,11 @@ function addOrUpdateEvent(counter) {
     const startStr = $(`#event-start-${counter}`).val();
     const endStr = $(`#event-end-${counter}`).val();
     const color = $(`#event-color-${counter}`).val();
+
+    if (!name || !startStr || !endStr) {
+        showError('Please fill in all event details');
+        return;
+    }
 
     const start = new Date(startStr);
     const end = new Date(endStr);
@@ -205,10 +570,10 @@ function addOrUpdateEvent(counter) {
         lifeEvents[eventIndex] = { id: `event-${counter}`, name, start, end, color };
     } else {
         lifeEvents.push({ id: `event-${counter}`, name, start, end, color });
-        eventCounter++;
     }
 
     createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
+
     if (auth.currentUser) {
         const firebaseLifeEvents = lifeEvents.map(event => ({
             ...event,
@@ -241,351 +606,12 @@ function removeEvent(eventId) {
     }
 }
 
-// Firebase Functions
-function saveLifeEventsToDatabase(userId, lifeEvents) {
-    database.ref('users/' + userId + '/lifeEvents').set(lifeEvents);
-}
-
-function loadLifeEventsFromDatabase(userId) {
-    database.ref('users/' + userId + '/lifeEvents').once('value').then((snapshot) => {
-        const events = snapshot.val();
-        if (events) {
-            lifeEvents = events.map(event => ({
-                ...event,
-                start: new Date(event.start),
-                end: new Date(event.end)
-            })).filter(event => !isNaN(event.start) && !isNaN(event.end));
-            
-            eventCounter = lifeEvents.reduce((max, event) => {
-                const currentNum = parseInt(event.id.replace('event-', ''));
-                return Math.max(max, currentNum);
-            }, 0) + 1;
-            
-            createWeekBoxes(document.getElementById('chart-container'), totalWeeksLived, 90);
-            updateLegend();
-            updateFloatingDivWithEvents();
-        }
-    }).catch(error => {
-        console.error('Error loading life events:', error);
-    });
-}
-
-function saveBirthDateToDatabase(userId, birthDate) {
-    database.ref('users/' + userId + '/birthDate').set(birthDate.toISOString());
-}
-
-function loadBirthDateFromDatabase(userId) {
-    database.ref('users/' + userId + '/birthDate').once('value').then((snapshot) => {
-        const birthDateString = snapshot.val();
-        if (birthDateString) {
-            birthDate = new Date(birthDateString);
-            document.getElementById('birthdate').valueAsDate = birthDate;
-            calculateAge();
-        }
-    });
-}
-
-// Authentication Functions
-function registerUser() {
-    const email = document.getElementById('register-email').value;
-    const password = document.getElementById('register-password').value;
-    if (email && password) {
-        auth.createUserWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                onUserLoggedIn(userCredential.user);
-            })
-            .catch((error) => {
-                showError('Registration failed: ' + error.message);
-            });
-    } else {
-        showError('Please enter both email and password.');
-    }
-}
-
-window.loginUser = function() {
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-    const landingPageDiv = document.getElementById('landing-page');
-
-    if (landingPageDiv) landingPageDiv.style.display = 'none';
-
-    if (email && password) {
-        auth.signInWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                onUserLoggedIn(userCredential.user);
-            })
-            .catch((error) => {
-                showError('Login failed: ' + error.message);
-            });
-    } else {
-        showError('Email or password is missing - please try again');
-    }
-}
-
-window.logoutUser = function() {
-    auth.signOut().then(() => {
-        handleLoggedOutState();
-    }).catch((error) => {
-        showError('Logout failed: ' + error.message);
-    });
-}
-
-// UI State Management
-function onUserLoggedIn(user) {
-    const elements = {
-        authContainer: document.getElementById('auth-container'),
-        logoutButton: document.getElementById('logout-button'),
-        navbar: document.getElementById('navbar'),
-        registerSection: document.getElementById('register-section'),
-        toggleAuthButton: document.getElementById('toggle-auth'),
-        accountImg: document.getElementById('accountImg'),
-        accountMenu: document.getElementById('account-menu'),
-        landingPageImg: document.getElementById('landingPage'),
-        signInLink: document.getElementById('signin-link'),
-        landingPageDiv: document.getElementById('landing-page'),
-        loginSectionDiv: document.getElementById('login-section'),
-        floatingDiv: document.getElementById('floating-div'),
-        mainContent: document.getElementById('main-content')
-    };
-
-    // Update UI elements visibility
-    Object.entries({
-        authContainer: 'none',
-        logoutButton: 'block',
-        navbar: 'flex',
-        registerSection: 'none',
-        toggleAuthButton: 'none',
-        signInLink: 'none',
-        accountImg: 'block',
-        accountMenu: 'none',
-        landingPageImg: 'none',
-        landingPageDiv: 'none',
-        loginSectionDiv: 'none',
-        mainContent: 'block'
-    }).forEach(([elementKey, displayValue]) => {
-        if (elements[elementKey]) {
-            elements[elementKey].style.display = displayValue;
-        }
-    });
-
-    clearUserData();
-    loadLifeEventsFromDatabase(user.uid);
-    loadBirthDateFromDatabase(user.uid);
-
-    updateLegend();
-    updateUserName();
-    createWeekLabels();
-    createYearLabels(100);
-}
-
-function handleLoggedOutState() {
-    const elements = {
-        mainContent: document.getElementById('main-content'),
-        navbar: document.getElementById('navbar'),
-        navbarUserInfo: document.getElementById('user-info'),
-        authContainer: document.getElementById('auth-container'),
-        loginSection: document.getElementById('login-section'),
-        registerSection: document.getElementById('register-section'),
-        toggleAuth: document.getElementById('toggle-auth'),
-        logoutButton: document.getElementById('logout-button'),
-        loginContainer: document.getElementById('login-container'),
-        signInLink: document.getElementById('signin-link'),
-        accountImg: document.getElementById('accountImg'),
-        accountMenu: document.getElementById('account-menu'),
-        landingPage: document.getElementById('landingPage'),
-        landingPageDiv: document.getElementById('landing-page')
-    };
-
-    // Update UI elements visibility
-    Object.entries({
-        mainContent: 'none',
-        navbar: 'none',
-        loginSection: 'block',
-        registerSection: 'none',
-        logoutButton: 'none',
-        signInLink: 'none',
-        accountImg: 'block',
-        accountMenu: 'none',
-        landingPage: 'flex',
-        landingPageDiv: 'flex'
-    }).forEach(([elementKey, displayValue]) => {
-        if (elements[elementKey]) {
-            elements[elementKey].style.display = displayValue;
-        }
-    });
-
-    if (elements.landingPageDiv) {
-        elements.landingPageDiv.style.flexDirection = 'row-reverse';
-        elements.landingPageDiv.style.alignItems = 'center';
-        elements.landingPageDiv.style.justifyContent = 'center';
-    }
-
-    if (elements.navbarUserInfo) {
-        elements.navbarUserInfo.innerHTML = '';
-    }
-
-    lifeEvents = [];
-    updateLegend();
-    updateUserName();
-    clearUserData();
-}
-
-// Helper Functions
-function clearUserData() {
-    const birthdateInput = document.getElementById('birthdate');
-    if (birthdateInput) {
-        birthdateInput.value = '';
-    }
-
-    lifeEvents = [];
-    const chartContainer = document.getElementById('chart-container');
-    if (chartContainer) {
-        chartContainer.innerHTML = '';
-    }
-    
-    updateLegend();
-}
-
-function updateLegend() {
-    const legendContainer = document.getElementById('events-legend');
-    if (!legendContainer) return;
-    
-    legendContainer.innerHTML = '';
-    lifeEvents.forEach(event => {
-        const legendItem = document.createElement('div');
-        legendItem.classList.add('event-legend-item');
-
-        const colorIndicator = document.createElement('div');
-        colorIndicator.classList.add('event-color-indicator');
-        colorIndicator.style.backgroundColor = event.color;
-
-        const eventName = document.createElement('span');
-        eventName.classList.add('event-name');
-        eventName.textContent = event.name;
-
-        legendItem.appendChild(colorIndicator);
-        legendItem.appendChild(eventName);
-        legendContainer.appendChild(legendItem);
-    });
-}
-
-function updateUserName() {
-    const user = firebase.auth().currentUser;
-    if (user) {
-        const email = user.email;
-        const userName = email.substring(0, email.lastIndexOf("@"));
-        const userNameElement = document.getElementById('user-name');
-        if (userNameElement) {
-            userNameElement.textContent = userName;
-        }
-    }
-}
-
-function toggleAuthMode() {
-    const loginSection = document.getElementById('login-section');
-    const registerSection = document.getElementById('register-section');
-    
-    if (registerSection.style.display === 'none') {
-        loginSection.style.display = 'none';
-        registerSection.style.display = 'block';
-    } else {
-        loginSection.style.display = 'block';
-        registerSection.style.display = 'none';
-    }
-}
-
-function showError(message) {
-    let errorContainer = document.getElementById('error-message');
-    if (!errorContainer) {
-        errorContainer = document.createElement('div');
-        errorContainer.id = 'error-message';
-        errorContainer.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: red;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 1000;
-            display: none;
-        `;
-        document.body.appendChild(errorContainer);
-    }
-    
-    errorContainer.textContent = message;
-    errorContainer.style.display = 'block';
-    
-    setTimeout(() => {
-        errorContainer.style.display = 'none';
-    }, 3000);
-}
-
-// Image Download Function
-window.downloadImage = function() {
-    const content = document.getElementById('main-content');
-    const clarityScaleFactor = window.devicePixelRatio || 4;
-    const originalWidth = content.style.width;
-    content.style.width = '1000px';
-    
-    const yearTextLabel = document.getElementById('year-text-label');
-    const originalTransform = yearTextLabel.style.transform;
-    yearTextLabel.style.transform = 'translateY(-50%) rotate(-90deg)';
-    
-    html2canvas(content, {
-        scale: clarityScaleFactor,
-        useCORS: true
-    }).then(canvas => {
-        if (canvas) {
-            const link = document.createElement('a');
-            link.download = 'my-life-in-weeks.png';
-            link.href = canvas.toDataURL('image/png', 1.0);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    }).catch(error => {
-        content.style.width = originalWidth;
-        showError('Error generating image: ' + error.message);
-    });
-    
-    yearTextLabel.style.transform = originalTransform;
-}
-
-// Life Events Toggle
-window.toggleLifeEvent = function() {
-    const floatingDiv = document.getElementById('floating-div');
-    floatingDiv.style.display = floatingDiv.style.display === 'none' ? 'block' : 'none';
-}
-
-// Initialize the app
-function initializeApp() {
-    const chartContainer = document.getElementById('chart-container');
-    createEmptyWeekBoxes(chartContainer, 90);
-}
-
-function createEmptyWeekBoxes(container, totalYears) {
-    container.innerHTML = '';
-    const weeksPerYear = 52;
-    for (let year = 0; year < totalYears; year++) {
-        const yearContainer = document.createElement('div');
-        yearContainer.classList.add('year-container');
-        for (let week = 0; week < weeksPerYear; week++) {
-            const weekBox = document.createElement('div');
-            weekBox.classList.add('week-box', 'unlived');
-            yearContainer.appendChild(weekBox);
-        }
-        container.appendChild(yearContainer);
-    }
-}
-
 function updateFloatingDivWithEvents() {
     $('#floating-div').empty();
-    
+
     // Add title
     $('<h3>Life Events</h3>').appendTo('#floating-div');
-    
+
     lifeEvents.forEach(event => {
         const eventGroup = $('<div/>', {
             class: 'event-group',
@@ -632,27 +658,15 @@ function updateFloatingDivWithEvents() {
         $('<button/>', {
             text: 'x',
             class: 'remove-event',
-            'data-event-id': event.id
+            'data-event-id': event.id,
+            click: function (e) {
+                e.stopPropagation();
+                removeEvent($(this).data('event-id'));
+            }
         }).appendTo(eventGroup);
     });
 
-    attachDeleteEventListeners();
-    addAddEventButton();
-}
-
-function formatDate(date) {
-    return date.toISOString().slice(0, 10);
-}
-
-function attachDeleteEventListeners() {
-    $('.remove-event').off('click').on('click', function(e) {
-        e.stopPropagation();
-        const eventId = $(this).data('event-id');
-        removeEvent(eventId);
-    });
-}
-
-function addAddEventButton() {
+    // Add the "Add Event" button
     $('<div/>', {
         id: 'add-event-btn',
         title: 'Add life event',
@@ -660,3 +674,195 @@ function addAddEventButton() {
         click: addEvent
     }).appendTo('#floating-div');
 }
+
+function updateLegend() {
+    const legendContainer = document.getElementById('events-legend');
+    if (!legendContainer) return;
+
+    legendContainer.innerHTML = '';
+    lifeEvents.forEach(event => {
+        const legendItem = document.createElement('div');
+        legendItem.classList.add('event-legend-item');
+
+        const colorIndicator = document.createElement('div');
+        colorIndicator.classList.add('event-color-indicator');
+        colorIndicator.style.backgroundColor = event.color;
+
+        const eventName = document.createElement('span');
+        eventName.classList.add('event-name');
+        eventName.textContent = event.name;
+
+        legendItem.appendChild(colorIndicator);
+        legendItem.appendChild(eventName);
+        legendContainer.appendChild(legendItem);
+    });
+}
+
+function updateUserName() {
+    const user = auth.currentUser;
+    if (user) {
+        const email = user.email;
+        const userName = email ? email.substring(0, email.lastIndexOf("@")) : 'User';
+        const userNameElement = document.getElementById('user-name');
+        if (userNameElement) {
+            userNameElement.textContent = userName;
+        }
+    }
+}
+
+function clearUserData() {
+    const birthdateInput = document.getElementById('birthdate');
+    if (birthdateInput) {
+        birthdateInput.value = '';
+    }
+
+    lifeEvents = [];
+    const chartContainer = document.getElementById('chart-container');
+    if (chartContainer) {
+        chartContainer.innerHTML = '';
+    }
+
+    updateLegend();
+}
+
+// Helper Functions
+function formatDate(date) {
+    if (!date) return '';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0, 10);
+}
+
+function showError(message) {
+    let errorContainer = document.getElementById('error-message');
+    if (!errorContainer) {
+        errorContainer = document.createElement('div');
+        errorContainer.id = 'error-message';
+        errorContainer.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ff3b30;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            display: none;
+            font-size: 14px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 80%;
+            text-align: center;
+            animation: fadeIn 0.3s ease-in-out;
+        `;
+        document.body.appendChild(errorContainer);
+    }
+
+    errorContainer.textContent = message;
+    errorContainer.style.display = 'block';
+
+    setTimeout(() => {
+        errorContainer.style.opacity = '0';
+        setTimeout(() => {
+            errorContainer.style.display = 'none';
+            errorContainer.style.opacity = '1';
+        }, 300);
+    }, 3000);
+}
+// Image Download Function
+function downloadImage() {
+    const content = document.getElementById('main-content');
+    if (!content) return;
+
+    const clarityScaleFactor = window.devicePixelRatio || 4;
+    const originalWidth = content.style.width;
+    content.style.width = '1000px';
+
+    const yearTextLabel = document.getElementById('year-text-label');
+    const originalTransform = yearTextLabel?.style.transform;
+    if (yearTextLabel) {
+        yearTextLabel.style.transform = 'translateY(-50%) rotate(-90deg)';
+    }
+
+    html2canvas(content, {
+        scale: clarityScaleFactor,
+        useCORS: true
+    }).then(canvas => {
+        if (canvas) {
+            const link = document.createElement('a');
+            link.download = 'my-life-in-weeks.png';
+            link.href = canvas.toDataURL('image/png', 1.0);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }).catch(error => {
+        content.style.width = originalWidth;
+        showError('Error generating image: ' + error.message);
+    }).finally(() => {
+        if (yearTextLabel && originalTransform) {
+            yearTextLabel.style.transform = originalTransform;
+        }
+        content.style.width = originalWidth;
+    });
+}
+
+// Toggle Life Events Panel
+function toggleLifeEvent() {
+    const floatingDiv = document.getElementById('floating-div');
+    if (floatingDiv) {
+        floatingDiv.style.display = floatingDiv.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+// Initialize empty week boxes
+function createEmptyWeekBoxes(container, totalYears) {
+    if (!container) return;
+
+    container.innerHTML = '';
+    const weeksPerYear = 52;
+    for (let year = 0; year < totalYears; year++) {
+        const yearContainer = document.createElement('div');
+        yearContainer.classList.add('year-container');
+        for (let week = 0; week < weeksPerYear; week++) {
+            const weekBox = document.createElement('div');
+            weekBox.classList.add('week-box', 'unlived');
+            yearContainer.appendChild(weekBox);
+        }
+        container.appendChild(yearContainer);
+    }
+}
+
+// Initialize the app
+function initializeApp() {
+    const chartContainer = document.getElementById('chart-container');
+    if (chartContainer) {
+        createEmptyWeekBoxes(chartContainer, 90);
+    }
+}
+// Make ALL functions available globally that are called from HTML
+window.loginUser = loginUser;
+window.registerUser = registerUser;
+window.logoutUser = logoutUser;
+window.toggleAuthMode = toggleAuthMode;
+window.downloadImage = downloadImage;
+window.toggleLifeEvent = toggleLifeEvent;
+window.calculateAge = calculateAge;
+window.addEvent = addEvent;
+window.showLogin = toggleAuthMode; // Add this for the sign-in link
+
+// Add missing CSS keyframe animation
+const style = document.createElement('style');
+style.textContent = `
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+`;
+document.head.appendChild(style);

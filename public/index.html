@@ -34,34 +34,38 @@
         </div>
     </nav>
 
-    <div id="landing-page" style="display: flex; flex-direction: row-reverse; align-items: center; justify-content: center;">
-        <div class="image-bloom-container">
-            <img src="./images/landingPage.png" id="landingPage" alt="Landing Page Image" style="cursor: pointer; padding: 10px;">
-        </div>
-        
-        <!-- Login Section -->
-        <div id="login-section">
-            <h1>Bringing life into perspective</h1>
-            <h3 id="lifeShortText" style="color: white;">Life is short, What's your next move?</h3>
-            <h2 style="color: white;">Login</h2>
-            <input type="email" id="login-email" placeholder="Email" style="margin-bottom: 10px;">
-            <input type="password" id="login-password" placeholder="Password" style="margin-bottom: 10px;">
-            <button onclick="loginUser()">Login</button>
-            <button onclick="toggleAuthMode()">I want to register</button>
-        </div>
-
-        <!-- Register Section -->
-        <div id="register-section" style="display: none;">
-            <h1>Bringing life into perspective</h1>
-            <h3 id="lifeShortText" style="color: white;">Life is short, What's your next move?</h3>
-            <h2 style="color: white;">Register</h2>
-            <input type="email" id="register-email" placeholder="Email" style="margin-bottom: 10px;">
-            <input type="password" id="register-password" placeholder="Password" style="margin-bottom: 10px;">
-            <button onclick="registerUser()">Register</button>
-            <button onclick="toggleAuthMode()">I want to login</button>
-        </div>
+<!-- Replace the current landing-page div with this updated version -->
+<div id="landing-page">
+    <div class="image-bloom-container">
+        <img src="./images/landingPage.png" id="landingPage" alt="Landing Page Image">
+    </div>
+    
+    <!-- Login Section -->
+    <div id="login-section">
+        <h1>Bringing life into perspective</h1>
+        <h3 id="lifeShortText">Life is short, What's your next move?</h3>
+        <h2>Login</h2>
+        <form id="login-form">
+            <input type="email" id="login-email" placeholder="Email" required>
+            <input type="password" id="login-password" placeholder="Password" required>
+            <button type="submit">Login</button>
+            <button type="button" onclick="toggleAuthMode()">I want to register</button>
+        </form>
     </div>
 
+    <!-- Register Section -->
+    <div id="register-section">
+        <h1>Bringing life into perspective</h1>
+        <h3 id="lifeShortText">Life is short, What's your next move?</h3>
+        <h2>Register</h2>
+        <form id="register-form">
+            <input type="email" id="register-email" placeholder="Email" required>
+            <input type="password" id="register-password" placeholder="Password" required>
+            <button type="submit">Register</button>
+            <button type="button" onclick="toggleAuthMode()">I want to login</button>
+        </form>
+    </div>
+</div>
     <!-- Main Content -->
     <div id="main-content" style="display: none;">
         <header>
