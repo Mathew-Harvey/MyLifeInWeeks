@@ -463,16 +463,20 @@ function saveBirthDateToDatabase(userId, date) {
     });
 }
 
-// Week Labels and Chart Creation
 function createWeekLabels() {
     const weekLabelsContainer = document.getElementById('week-labels-container');
     if (!weekLabelsContainer) return;
 
     weekLabelsContainer.innerHTML = '';
-    for (let i = 1; i <= 52; i++) {
+    for (let i = 0; i < 52; i++) {
+        if (i % 4 === 0) {
+            const monthSpacer = document.createElement('div');
+            monthSpacer.classList.add('month-spacer');
+            weekLabelsContainer.appendChild(monthSpacer);
+        }
         const weekLabel = document.createElement('div');
         weekLabel.classList.add('week-label');
-        weekLabel.textContent = i % 4 === 0 ? i : '';
+        weekLabel.textContent = (i + 1) % 4 === 0 ? (i + 1) : '';
         weekLabelsContainer.appendChild(weekLabel);
     }
 }

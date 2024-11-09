@@ -300,13 +300,13 @@ p {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    color: white;
+    position: relative;
 }
 
 
 
 .year-label-spacer {
-    height: 12px;
+    height: 16.8px; /* Match year-container height */
     margin: 0;
 }
 
@@ -316,15 +316,15 @@ p {
 
 
 .year-label {
-    height: 12px;
-    line-height: 12px;
+    height: 16px; /* Match year-container height */
+    line-height: 16px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     font-size: 10px;
     padding-right: 5px;
-    margin: 0;
 }
+
 #years-labels-container, .year-label {
     margin-top: 0;
 }
@@ -333,9 +333,7 @@ p {
     display: flex;
     justify-content: flex-start;
     width: 100%;
-    padding-left: 0;
     margin-bottom: 5px;
-    margin-left: 12px;
 }
 
 #week-text-label {
@@ -362,12 +360,16 @@ p {
     padding: 0;
 }
 
+
+
 #left-labels-wrapper {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     padding-right: 8px;
-    margin-top: 35px;
+    position: sticky;
+    top: 0;
+    margin-top: 24px; /* Added to align with grid */
 }
 
 #chart-container {
@@ -383,10 +385,11 @@ p {
     justify-content: flex-start;
     flex-wrap: wrap;
     width: 100%;
-    height: 12px;
-    margin-bottom: 1px;
+    height: 16.8px; /* Slightly increased from 16px to provide more room */
+    margin: 0;
     box-sizing: border-box;
 }
+
 
 .month-container {
     display: flex;
@@ -394,7 +397,7 @@ p {
 }
 
 .month-spacer {
-    width: 3px;
+    width: 6px;
     height: 10px;
     flex-shrink: 0;
 }
@@ -418,11 +421,14 @@ p {
     align-self: flex-start;
 }
 
+
 .decade-spacer {
     flex-basis: 100%;
-    height: 3px;
+    height: 3px; /* Reduced from 6px */
+    margin: 1.5px 0; /* Reduced from 4px */
 }
 
+/* Also ensure week boxes maintain consistent sizing */
 .week-box {
     width: 10px;
     height: 10px;
@@ -448,8 +454,6 @@ p {
     font-size: 10px;
     display: flex;
     justify-content: center;
-    margin: 0;
-    padding: 0;
 }
 
 #year-text-label {
