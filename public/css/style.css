@@ -334,8 +334,8 @@ p {
     justify-content: flex-start;
     width: 100%;
     padding-left: 0;
-    margin-bottom: 8px;
-    margin-left: 15px;
+    margin-bottom: 5px;
+    margin-left: 12px;
 }
 
 #week-text-label {
@@ -352,6 +352,7 @@ p {
     flex-direction: column;
     align-items: flex-start;
 }
+
 #parent-container {
     display: grid;
     grid-template-columns: min-content 1fr;
@@ -359,7 +360,6 @@ p {
     width: 100%;
     gap: 0;
     padding: 0;
-    margin-top: 20px;
 }
 
 #left-labels-wrapper {
@@ -383,20 +383,22 @@ p {
     justify-content: flex-start;
     flex-wrap: wrap;
     width: 100%;
-    height: 14px;
-    margin-bottom: 0;
+    height: 12px;
+    margin-bottom: 1px;
     box-sizing: border-box;
 }
+
 .month-container {
     display: flex;
     padding-right: 4px;
 }
 
 .month-spacer {
-    width: 2px;
+    width: 3px;
     height: 10px;
     flex-shrink: 0;
 }
+
 .decade-wrapper {
     display: flex;
     flex-direction: column;
@@ -418,14 +420,14 @@ p {
 
 .decade-spacer {
     flex-basis: 100%;
-    height: 2px;
+    height: 3px;
 }
 
 .week-box {
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    margin: 2px;
+    margin: 1px;
     border: 1px solid #000;
     background-color: transparent;
     box-sizing: border-box;
@@ -444,15 +446,17 @@ p {
     width: 12px;
     text-align: center;
     font-size: 10px;
-    margin: 0 1px;
     display: flex;
     justify-content: center;
+    margin: 0;
+    padding: 0;
 }
 
 #year-text-label {
-    margin-bottom: 10px;
-    white-space: nowrap;
+    margin-left: 0;
+    margin-right: 15px;
 }
+
 #add-event-btn:hover {
     background-color: #04c204;
 }
